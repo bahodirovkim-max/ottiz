@@ -1,0 +1,16 @@
+{
+  "name": "Rent Automation Platform",
+  "short_name": "RentApp",
+  "description": "Ijara va to'lovlarni avtomatlashtirish platformasi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/next.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

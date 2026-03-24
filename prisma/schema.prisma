@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  LANDLORD
+  TENANT
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  OVERDUE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  name      String?
+  role      Role     @default(TENANT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  properties  Property[]      @relation("LandlordProperties")
+  agreements  RentAgreement[] @relation("TenantAgreements")
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  name        String
+  address     String?
+  price       Float
+  currency    String   @default("UZS")
+  landlordId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  landlord    User            @relation("LandlordProperties", fields: [landlordId], references: [id])
+  agreements  RentAgreement[]
+}
+
+model RentAgreement {
+  id            String   @id @default(uuid())
+  propertyId    String
+  tenantId      String
+  startDate     DateTime
+  endDate       DateTime?
+  monthlyAmount Float
+  currency      String   @default("UZS")
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  property      Property  @relation(fields: [propertyId], references: [id])
+  tenant        User      @relation("TenantAgreements", fields: [tenantId], references: [id])
+  payments      Payment[]
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  agreementId   String
+  amount        Float
+  currency      String        @default("UZS")
+  status        PaymentStatus @default(PENDING)
+  dueDate       DateTime
+  paidAt        DateTime?
+  paymentMethod String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  agreement     RentAgreement @relation(fields: [agreementId], references: [id])
+}
