@@ -356,6 +356,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Ijarachi</th>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Mulk nomi</th>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Muddat</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Ijara summasi</th>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Amallar paneli</th>
                     </tr>
                   </thead>
@@ -373,6 +374,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                         </td>
                         <td className="px-6 sm:px-8 py-6 text-zinc-600 dark:text-zinc-300 font-medium">{t.property}</td>
                         <td className="px-6 sm:px-8 py-6 text-zinc-600 dark:text-zinc-300 font-bold">{t.dueDate}</td>
+                        <td className="px-6 sm:px-8 py-6 text-zinc-900 dark:text-white font-extrabold">{t.amount?.toLocaleString()} <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">UZS</span></td>
                         <td className="px-6 sm:px-8 py-6">
                           {t.status === 'AGREEMENT_PENDING' ? (
                              <span className="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 mr-2 shadow-sm border border-zinc-200 dark:border-zinc-700">Tasdiq kutilmoqda <Clock className="w-3.5 h-3.5 ml-2" /></span>
