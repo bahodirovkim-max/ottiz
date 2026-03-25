@@ -21,6 +21,13 @@ enum PaymentStatus {
   OVERDUE
 }
 
+enum AgreementStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  ENDED
+}
+
 model User {
   id         String   @id @default(uuid())
   phone      String   @unique
@@ -58,6 +65,7 @@ model RentAgreement {
   monthlyAmount Float
   currency      String   @default("UZS")
   isActive      Boolean  @default(true)
+  status        AgreementStatus @default(PENDING)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

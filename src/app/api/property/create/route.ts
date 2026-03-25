@@ -37,28 +37,21 @@ export async function POST(req: Request) {
       });
     }
 
-    // 4. Create Agreement
+    // 4. Create Agreement in PENDING status
     const agreement = await prisma.rentAgreement.create({
       data: {
         propertyId: property.id,
         tenantId: tenant.id,
         startDate: new Date(),
-        monthlyAmount: parseFloat(price)
+        monthlyAmount: parseFloat(price),
+        status: 'PENDING',
+        isActive: false
       }
     });
 
-    // 5. Create First Invoice (Payment)
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 5);
-
-    await prisma.payment.create({
-      data: {
-        agreementId: agreement.id,
-        amount: parseFloat(price),
-        dueDate: dueDate,
-        status: 'PENDING'
-      }
-    });
+    // 5. Mock SMS/Telegram notification to tenant
+    console.log(`\n🔔 [ESKIZ SMS/BOT] XABAR YUBORILDI -> ${formattedPhone} raqamiga!`);
+    console.log(`"Sizga ijara to'lovi bo'yicha shartnoma yuborildi. Iltimos tizimga kirib tasdiqlang: https://ottiz.vercel.app/uz"\n`);
 
     return NextResponse.json({ success: true, property });
   } catch (error: any) {
