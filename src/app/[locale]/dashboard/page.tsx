@@ -47,18 +47,25 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       if (agreement.status === 'REJECTED' || agreement.status === 'ENDED') return;
 
       agreement.payments.forEach((p: any) => {
-         const d = new Date(p.dueDate);
-         if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-             if (p.status === 'PAID') {
+         const dueDateObj = new Date(p.dueDate);
+         
+         if (p.status === 'PAID') {
+             // For REVENUE (Joriy tushumlar), we must use the actual date the payment was received (paidAt), NOT the due date!
+             const paidDateObj = p.paidAt ? new Date(p.paidAt) : new Date(p.updatedAt);
+             if (paidDateObj.getMonth() === currentMonth && paidDateObj.getFullYear() === currentYear) {
                  receivedTotal += (p.paidAmount || p.amount);
-             } else {
+             }
+         } else {
+             // For EXPECTED payments (Kutilayotgan), we use the due date.
+             if (dueDateObj.getMonth() === currentMonth && dueDateObj.getFullYear() === currentYear) {
                  upcomingTotal += p.amount;
-                 if (d < new Date()) lateTenants++;
+                 if (dueDateObj < new Date()) lateTenants++;
              }
          }
          
          // Show ALL pending or under_review payments, PLUS any paid ones this month
-         if (p.status !== 'PAID' || (d.getMonth() === currentMonth && d.getFullYear() === currentYear)) {
+         const isPaidThisMonth = p.status === 'PAID' && (p.paidAt ? new Date(p.paidAt) : new Date(p.updatedAt)).getMonth() === currentMonth;
+         if (p.status !== 'PAID' || isPaidThisMonth) {
              actionablePayments.push({
                 id: agreement.tenant.id,
                 agreementId: agreement.id,
