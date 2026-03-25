@@ -55,6 +55,8 @@ model Property {
 
   landlord    User            @relation("LandlordProperties", fields: [landlordId], references: [id])
   agreements  RentAgreement[]
+
+  @@index([landlordId])
 }
 
 model RentAgreement {
@@ -78,6 +80,10 @@ model RentAgreement {
   property      Property  @relation(fields: [propertyId], references: [id])
   tenant        User      @relation("TenantAgreements", fields: [tenantId], references: [id])
   payments      Payment[]
+
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([status])
 }
 
 model Payment {
@@ -96,6 +102,10 @@ model Payment {
   updatedAt     DateTime      @updatedAt
 
   agreement     RentAgreement @relation(fields: [agreementId], references: [id])
+
+  @@index([agreementId])
+  @@index([status])
+  @@index([dueDate])
 }
 
 model OtpCode {

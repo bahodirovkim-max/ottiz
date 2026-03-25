@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       }
     });
 
-    if (!validOtp && code !== '00000') {
+    const isDevBypass = process.env.NODE_ENV === 'development' && code === '00000';
+    if (!validOtp && !isDevBypass) {
       return NextResponse.json({ success: false, error: 'Kod noto`g`ri yoki muddati tugagan' }, { status: 401 });
     }
 
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
     cookieStore.set('auth-token', user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'strict',
       maxAge: 60 * 60 * 24 * 30
     });
     

@@ -24,7 +24,7 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
 
   let displayCard = cardNumber || "Karta ulanmagan";
   if (cardNumber && cardNumber.length === 16) {
-     displayCard = cardNumber.match(/.{1,4}/g)?.join(' ') || cardNumber;
+     displayCard = `**** **** **** ${cardNumber.slice(-4)}`;
   }
 
   return (

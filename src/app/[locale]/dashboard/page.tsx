@@ -62,33 +62,81 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   // SERVER ACTIONS
   async function acceptPayment(formData: FormData) {
     'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
+    if (!sessionId) return;
+    
     const paymentId = formData.get('paymentId') as string;
     if (paymentId) {
-      await prisma.payment.update({
+      const payment = await prisma.payment.findUnique({
         where: { id: paymentId },
-        data: { status: 'PAID', paidAt: new Date() }
+        include: { agreement: { include: { property: true } } }
       });
-      revalidatePath('/uz/dashboard');
+      if (payment?.agreement.property.landlordId === sessionId) {
+        await prisma.payment.update({
+          where: { id: paymentId },
+          data: { status: 'PAID', paidAt: new Date() }
+        });
+        revalidatePath('/uz/dashboard');
+      }
+    }
+  }
+
+  async function rejectPayment(formData: FormData) {
+    'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
+    if (!sessionId) return;
+    
+    const paymentId = formData.get('paymentId') as string;
+    if (paymentId) {
+      const payment = await prisma.payment.findUnique({
+        where: { id: paymentId },
+        include: { agreement: { include: { property: true, tenant: true } } }
+      });
+      if (payment?.agreement.property.landlordId === sessionId) {
+        await prisma.payment.update({
+          where: { id: paymentId },
+          data: { status: 'PENDING', paidAt: null }
+        });
+        const newScore = Math.max(0, payment.agreement.tenant.trustScore - 15);
+        await prisma.user.update({
+           where: { id: payment.agreement.tenantId },
+           data: { trustScore: newScore }
+        });
+        revalidatePath('/uz/dashboard');
+      }
     }
   }
 
   async function endAgreement(formData: FormData) {
     'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
     const agreementId = formData.get('agreementId') as string;
-    await prisma.rentAgreement.update({
-       where: { id: agreementId },
-       data: { status: 'ENDED', isActive: false, endDate: new Date() }
-    });
-    revalidatePath('/uz/dashboard');
+    if (!sessionId || !agreementId) return;
+
+    const agreement = await prisma.rentAgreement.findUnique({ where: { id: agreementId }, include: { property: true } });
+    if (agreement?.property.landlordId === sessionId) {
+      await prisma.rentAgreement.update({
+         where: { id: agreementId },
+         data: { status: 'ENDED', isActive: false, endDate: new Date() }
+      });
+      revalidatePath('/uz/dashboard');
+    }
   }
 
   // TENANT SERVER ACTIONS
   async function confirmRentAgreement(formData: FormData) {
     'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
     const agreementId = formData.get('agreementId') as string;
+    if (!sessionId || !agreementId) return;
+
     const agreement = await prisma.rentAgreement.findUnique({ where: { id: agreementId } });
     
-    if (agreement && agreement.status === 'PENDING') {
+    if (agreement && agreement.status === 'PENDING' && agreement.tenantId === sessionId) {
       await prisma.rentAgreement.update({
         where: { id: agreementId },
         data: { status: 'ACTIVE', isActive: true }
@@ -111,12 +159,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   async function rejectRentAgreement(formData: FormData) {
     'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
     const agreementId = formData.get('agreementId') as string;
-    await prisma.rentAgreement.update({
-      where: { id: agreementId },
-      data: { status: 'REJECTED', isActive: false }
-    });
-    revalidatePath('/uz/dashboard');
+    if (!sessionId || !agreementId) return;
+
+    const agreement = await prisma.rentAgreement.findUnique({ where: { id: agreementId } });
+    if (agreement && agreement.tenantId === sessionId) {
+      await prisma.rentAgreement.update({
+        where: { id: agreementId },
+        data: { status: 'REJECTED', isActive: false }
+      });
+      revalidatePath('/uz/dashboard');
+    }
   }
 
   const rentedAgreements = user.agreements.filter((a: any) => a.status !== 'REJECTED' && a.status !== 'ENDED');
@@ -288,11 +343,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                           {t.status === 'AGREEMENT_PENDING' ? (
                              <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 mr-2">Ijarachi tasdig'i kutilmoqda ⏳</span>
                           ) : t.status === 'UNDER_REVIEW' ? (
-                            <form action={acceptPayment} className="flex items-center">
-                              <input type="hidden" name="paymentId" value={t.paymentId} />
+                            <div className="flex items-center">
                               <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 mr-3">Tekshiruvda O'tkazma ⏳</span>
-                              <button type="submit" className="px-3 py-1.5 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all">Qabul ✅</button>
-                            </form>
+                              <div className="flex gap-1.5">
+                                 <form action={rejectPayment}>
+                                   <input type="hidden" name="paymentId" value={t.paymentId} />
+                                   <button type="submit" title="To'lov tushmadi (Rad etish)" className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all active:scale-[0.98] shadow-sm">Rad ❌</button>
+                                 </form>
+                                 <form action={acceptPayment}>
+                                   <input type="hidden" name="paymentId" value={t.paymentId} />
+                                   <button type="submit" title="Pul kelib tushdi (Tasdiqlash)" className="px-3 py-1.5 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all active:scale-[0.98] shadow-sm">Qabul ✅</button>
+                                 </form>
+                              </div>
+                            </div>
                           ) : (
                             <div className="flex items-center gap-2">
                               {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>To'landi</span>}
