@@ -25,10 +25,10 @@ export default async function DashboardPage() {
   let lateTenants = 0;
 
   const currentMonth = new Date().getMonth();
-  const allAgreements = user.properties.flatMap(p => p.agreements);
+  const allAgreements = user.properties.flatMap((p: any) => p.agreements);
   
-  const formattedTenants = allAgreements.map(agreement => {
-    const currentPayment = agreement.payments.find(p => p.dueDate.getMonth() === currentMonth);
+  const formattedTenants = allAgreements.map((agreement: any) => {
+    const currentPayment = agreement.payments.find((p: any) => p.dueDate.getMonth() === currentMonth);
     const amount = currentPayment ? currentPayment.amount : agreement.monthlyAmount;
     
     if (currentPayment?.status === 'PAID') {
@@ -44,7 +44,7 @@ export default async function DashboardPage() {
       id: agreement.tenant.id,
       name: agreement.tenant.name || agreement.tenant.phone,
       phone: agreement.tenant.phone,
-      property: user.properties.find(p => p.id === agreement.propertyId)?.name,
+      property: user.properties.find((p: any) => p.id === agreement.propertyId)?.name,
       amount: amount,
       dueDate: currentPayment?.dueDate.toLocaleDateString() || agreement.startDate.toLocaleDateString(),
       status: currentPayment?.status || 'PENDING'
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                {formattedTenants.map((t, idx) => (
+                {formattedTenants.map((t: any, idx: number) => (
                   <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
                     <td className="px-8 py-6">
                       <p className="font-semibold text-zinc-900 dark:text-white">{t.name}</p>
