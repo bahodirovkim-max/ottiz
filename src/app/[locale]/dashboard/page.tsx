@@ -3,7 +3,8 @@ import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
+  const { view } = await searchParams;
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
 
@@ -122,9 +123,13 @@ export default async function DashboardPage() {
 
   const rentedAgreements = user.agreements.filter((a: any) => a.status !== 'REJECTED');
 
+  const showTabs = allAgreements.length > 0 && rentedAgreements.length > 0;
+  const defaultView = rentedAgreements.length > 0 && allAgreements.length === 0 ? 'tenant' : 'landlord';
+  const currentView = view || defaultView;
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-[#0a0a0a] p-4 sm:p-8 font-sans transition-colors duration-300 pb-20">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Salom, {user.name || user.phone}</h1>
@@ -144,9 +149,21 @@ export default async function DashboardPage() {
         </div>
       </header>
 
+      {/* --- ROLE TAB SWITCHER --- */}
+      {showTabs && (
+        <div className="flex bg-zinc-200/50 dark:bg-zinc-800/50 p-1.5 rounded-2xl mb-8 max-w-sm mx-auto sm:mx-0">
+           <a href="?view=tenant" className={`flex-1 text-center py-2.5 rounded-xl text-sm font-bold transition-all ${currentView === 'tenant' ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
+             🔑 Ijarachi sifatida
+           </a>
+           <a href="?view=landlord" className={`flex-1 text-center py-2.5 rounded-xl text-sm font-bold transition-all ${currentView === 'landlord' ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
+             🏠 Uy Egasi sifatida
+           </a>
+        </div>
+      )}
+
       {/* --- TENANT SECTION (Only shows if they are renting properties) --- */}
-      {rentedAgreements.length > 0 && (
-         <div className="mb-12">
+      {currentView === 'tenant' && rentedAgreements.length > 0 && (
+         <div className="mb-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 px-1 flex items-center gap-2">
                <span>🔑</span> Ijaraga olgan uylarim
             </h2>
@@ -208,8 +225,8 @@ export default async function DashboardPage() {
 
 
       {/* --- LANDLORD SECTION --- */}
-      {allAgreements.length > 0 && (
-        <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800">
+      {currentView === 'landlord' && allAgreements.length > 0 && (
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 px-1 flex items-center gap-2">
              <span>🏠</span> Ijaraga berilgan mulklarim
           </h2>
