@@ -2,8 +2,11 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight, Trash2 } from 'lucide-react';
+import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight, Trash2, ChartBar, Activity } from 'lucide-react';
 import { ConfirmButton } from '@/components/ConfirmButton';
+import { DashboardChart } from '@/components/DashboardChart';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   const { view } = await searchParams;
@@ -50,20 +53,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
          const dueDateObj = new Date(p.dueDate);
          
          if (p.status === 'PAID') {
-             // For REVENUE (Joriy tushumlar), we must use the actual date the payment was received (paidAt), NOT the due date!
              const paidDateObj = p.paidAt ? new Date(p.paidAt) : new Date(p.updatedAt);
              if (paidDateObj.getMonth() === currentMonth && paidDateObj.getFullYear() === currentYear) {
                  receivedTotal += (p.paidAmount || p.amount);
              }
          } else {
-             // For EXPECTED payments (Kutilayotgan), we use the due date.
              if (dueDateObj.getMonth() === currentMonth && dueDateObj.getFullYear() === currentYear) {
                  upcomingTotal += p.amount;
                  if (dueDateObj < new Date()) lateTenants++;
              }
          }
          
-         // Show ALL pending or under_review payments, PLUS any paid ones this month
          const isPaidThisMonth = p.status === 'PAID' && (p.paidAt ? new Date(p.paidAt) : new Date(p.updatedAt)).getMonth() === currentMonth;
          if (p.status !== 'PAID' || isPaidThisMonth) {
              actionablePayments.push({
@@ -86,7 +86,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
          }
       });
       
-      // If agreement has NO payments but is PENDING (just requested):
       if (agreement.payments.length === 0 && agreement.status === 'PENDING') {
          actionablePayments.push({
             id: agreement.tenant.id,
@@ -107,6 +106,60 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   });
 
   actionablePayments.sort((a, b) => new Date(a.rawDueDate).getTime() - new Date(b.rawDueDate).getTime());
+
+  // GENERATE CHART DATA
+  const chartData = [];
+  const monthNames = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt", "Noy", "Dek"];
+  for (let i = 5; i >= 0; i--) {
+     let m = currentMonth - i;
+     let y = currentYear;
+     if (m < 0) { m += 12; y -= 1; }
+     
+     let totalForMonth = 0;
+     allAgreements.forEach((agr: any) => {
+       agr.payments.forEach((p: any) => {
+         if (p.status === 'PAID') {
+           const pd = p.paidAt ? new Date(p.paidAt) : new Date(p.updatedAt);
+           if (pd.getMonth() === m && pd.getFullYear() === y) {
+             totalForMonth += (p.paidAmount || p.amount);
+           }
+         }
+       });
+     });
+     chartData.push({ month: monthNames[m], total: totalForMonth });
+  }
+
+  // GENERATE ACTIVITY FEED
+  const activityFeed: any[] = [];
+  allAgreements.forEach((agr: any) => {
+     if (agr.status === 'ACTIVE' || agr.status === 'PENDING') {
+        activityFeed.push({
+           type: 'AGREEMENT',
+           title: 'Yangi ijarachi so\'rovi',
+           date: agr.createdAt,
+           desc: `${agr.tenant?.phone || 'Mijoz'} (${user.properties.find((pr: any) => pr.id === agr.propertyId)?.name})`
+        });
+     }
+     agr.payments.forEach((p: any) => {
+        if (p.status === 'PAID') {
+          activityFeed.push({
+             type: 'PAYMENT_PAID',
+             title: 'To\'lov qabul qilindi',
+             date: p.paidAt || p.updatedAt,
+             desc: `+${(p.paidAmount || p.amount).toLocaleString()} UZS (${agr.tenant?.name || agr.tenant?.phone})`
+          });
+        } else if (p.status === 'UNDER_REVIEW') {
+          activityFeed.push({
+             type: 'PAYMENT_REVIEW',
+             title: 'To\'lov yuborildi',
+             date: p.updatedAt,
+             desc: `${(p.amount).toLocaleString()} UZS (${agr.tenant?.name || agr.tenant?.phone})`
+          });
+        }
+     });
+  });
+  activityFeed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const recentActivities = activityFeed.slice(0, 5);
 
   // SERVER ACTIONS
   async function acceptPayment(formData: FormData) {
@@ -276,7 +329,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             <User className="w-5 h-5" />
           </a>
         </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
+        <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 hide-scrollbar pl-1">
+          <div className="flex items-center gap-2 mr-1">
+             <ThemeToggle />
+             <LanguageToggle />
+          </div>
           <a href="/uz/history" className="hidden sm:flex items-center px-5 py-3.5 rounded-full text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
             <Receipt className="w-4 h-4 mr-2 text-zinc-500" /> Tarix
           </a>
@@ -411,12 +468,34 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 {receivedTotal.toLocaleString()} <span className="text-xl text-zinc-400 font-medium">UZS</span>
               </p>
             </div>
-            <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 hover:shadow-md transition-all sm:col-span-2 lg:col-span-1 relative overflow-hidden">
-              <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#2AABEE]/10 rounded-full blur-2xl"></div>
-              <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-2"><Building className="w-4 h-4" /> Faol ob'yektlar</h3>
-              <p className="text-3xl sm:text-4xl font-extrabold mt-4 text-zinc-900 dark:text-white tracking-tight">
-                {activePropertiesCount} <span className="text-xl text-zinc-400 font-medium">ta</span>
-              </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            <div className="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 relative overflow-hidden">
+               <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2 mb-6 uppercase tracking-wider">
+                 <ChartBar className="w-4 h-4 text-[#2AABEE]" /> Yillik Daromadlar Grafigi
+               </h3>
+               <DashboardChart data={chartData} />
+            </div>
+
+            <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 relative overflow-hidden flex flex-col">
+               <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2 mb-6 uppercase tracking-wider">
+                 <Activity className="w-4 h-4 text-emerald-500" /> So'nggi Amaliyotlar
+               </h3>
+               <div className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                  {recentActivities.length > 0 ? recentActivities.map((act, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${act.type === 'PAYMENT_PAID' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : act.type === 'AGREEMENT' ? 'bg-indigo-500' : 'bg-amber-500 animate-pulse'}`}></div>
+                      <div>
+                        <p className="text-sm font-bold text-zinc-900 dark:text-white">{act.title}</p>
+                        <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mt-1">{act.desc}</p>
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-600 mt-1 font-medium">{new Date(act.date).toLocaleString('uz-UZ', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <p className="text-sm text-zinc-500 text-center mt-10">Hech qanday harakat topilmadi</p>
+                  )}
+               </div>
             </div>
           </div>
 

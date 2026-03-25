@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import "../globals.css";
 
 const geistSans = Geist({
@@ -46,12 +47,14 @@ export default async function RootLayout({
       <head>
         <script src="https://telegram.org/js/telegram-web-app.js" async></script>
       </head>
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black">
-        <NextIntlClientProvider messages={messages}>
-          <TwaProvider>
-            {children}
-          </TwaProvider>
-        </NextIntlClientProvider>
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black transition-colors duration-300">
+        <ThemeProvider>
+          <NextIntlClientProvider messages={messages}>
+            <TwaProvider>
+              {children}
+            </TwaProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
