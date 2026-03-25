@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight } from 'lucide-react';
+import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight, Trash2 } from 'lucide-react';
+import { ConfirmButton } from '@/components/ConfirmButton';
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
   const { view } = await searchParams;
@@ -167,6 +168,27 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
          data: { status: 'ENDED', isActive: false, endDate: new Date() }
       });
       revalidatePath('/uz/dashboard');
+    }
+  }
+
+  async function deletePendingAgreement(formData: FormData) {
+    'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
+    const agreementId = formData.get('agreementId') as string;
+    if (!sessionId || !agreementId) return;
+
+    const agreement = await prisma.rentAgreement.findUnique({
+       where: { id: agreementId },
+       include: { property: true }
+    });
+    
+    if (agreement && agreement.status === 'PENDING' && agreement.property.landlordId === sessionId) {
+       await prisma.payment.deleteMany({ where: { agreementId: agreement.id } });
+       await prisma.rentAgreement.delete({ where: { id: agreement.id } });
+       await prisma.property.delete({ where: { id: agreement.propertyId } });
+       
+       revalidatePath('/uz/dashboard');
     }
   }
 
@@ -429,7 +451,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                         </td>
                         <td className="px-6 sm:px-8 py-6">
                           {t.status === 'AGREEMENT_PENDING' ? (
-                             <span className="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-sm border border-zinc-200 dark:border-zinc-700">Tasdiq kutilmoqda <Clock className="w-3.5 h-3.5 ml-2" /></span>
+                             <div className="flex items-center gap-2">
+                               <span className="inline-flex items-center px-3 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-sm border border-zinc-200 dark:border-zinc-700">Tasdiq kutilmoqda <Clock className="w-3.5 h-3.5 ml-2" /></span>
+                               <form action={deletePendingAgreement}>
+                                  <input type="hidden" name="agreementId" value={t.agreementId} />
+                                  <ConfirmButton text="Ushbu so'rovni butunlay bekor qilib o'chirib tashlamoqchimisiz?" title="O'chirish (Bekor qilish)" className="flex items-center justify-center p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl transition-all shadow-sm">
+                                    <Trash2 className="w-4 h-4" />
+                                  </ConfirmButton>
+                               </form>
+                             </div>
                           ) : t.status === 'UNDER_REVIEW' ? (
                             <div className="flex flex-col items-start gap-3">
                               <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 dark:from-amber-500/10 dark:to-orange-500/10 dark:text-amber-400 shadow-inner ring-1 ring-amber-200 dark:ring-amber-500/30">
@@ -462,9 +492,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                                 {t.paymentType === 'RENT' && (
                                    <form action={endAgreement}>
                                      <input type="hidden" name="agreementId" value={t.agreementId} />
-                                     <button type="submit" title="Shartnomani yakunlash (Arxiv)" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800">
+                                     <ConfirmButton text="Rostdan ham ijara shartnomasini yakunlab arxivlamoqchimisiz? Bu jarayon orqaga qaytarilmaydi!" title="Shartnomani yakunlash (Arxiv)" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
                                        <X className="w-4 h-4" />
-                                     </button>
+                                     </ConfirmButton>
                                    </form>
                                 )}
                               </div>
