@@ -123,8 +123,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   const rentedAgreements = user.agreements.filter((a: any) => a.status !== 'REJECTED');
 
-  const showTabs = allAgreements.length > 0 && rentedAgreements.length > 0;
-  const defaultView = rentedAgreements.length > 0 && allAgreements.length === 0 ? 'tenant' : 'landlord';
+  const showTabs = true;
+  const defaultView = user.role === 'LANDLORD' || (rentedAgreements.length === 0 && allAgreements.length > 0) ? 'landlord' : 'tenant';
   const currentView = view || defaultView;
 
   return (

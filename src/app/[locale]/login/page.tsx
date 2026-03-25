@@ -12,15 +12,21 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const formattedPhone = '+998' + phone.replace(/\D/g, '');
+
   const sendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (phone.length !== 9) {
+       setError("Iltimos, telefon raqamini to'liq kiriting (9 xona)");
+       return;
+    }
     setLoading(true); setError('');
     
     try {
       const res = await fetch('/api/auth/otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone })
+        body: JSON.stringify({ phone: formattedPhone })
       });
       const data = await res.json();
       if (data.success) setStep('OTP');
@@ -39,7 +45,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code })
+        body: JSON.stringify({ phone: formattedPhone, code })
       });
       const data = await res.json();
       if (data.success) {
@@ -80,17 +86,23 @@ export default function LoginPage() {
           <form className="mt-8 space-y-6" onSubmit={sendOtp}>
             <div>
               <label htmlFor="phone" className="block text-sm font-medium leading-6 text-zinc-900 dark:text-zinc-300">
-                Telefon raqam
+                Telefon raqami
               </label>
-              <div className="mt-2">
+              <div className="mt-2 flex rounded-2xl shadow-sm ring-1 ring-inset ring-zinc-200 focus-within:ring-2 focus-within:ring-inset focus-within:ring-black dark:ring-zinc-700 dark:focus-within:ring-white bg-white dark:bg-zinc-800/50 overflow-hidden transition-all">
+                <span className="flex select-none items-center pl-4 pr-2 text-zinc-500 dark:text-zinc-400 font-semibold sm:text-sm border-r border-zinc-200 dark:border-zinc-700 mr-2">
+                  +998
+                </span>
                 <input
                   id="phone"
                   type="tel"
                   required
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="block w-full rounded-2xl border-0 py-3.5 px-4 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-200 placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6 dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 dark:focus:ring-white transition-all outline-none"
-                  placeholder="+998901234567"
+                  onChange={(e) => {
+                     const val = e.target.value.replace(/\D/g, '').slice(0, 9);
+                     setPhone(val);
+                  }}
+                  className="block w-full border-0 bg-transparent py-3.5 pl-1 pr-4 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none font-bold tracking-wide"
+                  placeholder="90 123 45 67"
                   disabled={loading}
                 />
               </div>
