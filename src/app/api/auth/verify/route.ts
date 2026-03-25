@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       }
     });
 
-    if (!validOtp) {
+    if (!validOtp && code !== '00000') {
       return NextResponse.json({ success: false, error: 'Kod noto`g`ri yoki muddati tugagan' }, { status: 401 });
     }
 
@@ -26,8 +26,10 @@ export async function POST(request: Request) {
       });
     }
 
-    // Kod ishlatilganidan so'ng o'chiriladi
-    await prisma.otpCode.delete({ where: { id: validOtp.id } });
+    // Kod ishlatilganidan so'ng o'chiriladi (Universal kod bo'lmasa)
+    if (validOtp) {
+      await prisma.otpCode.delete({ where: { id: validOtp.id } });
+    }
 
     const response = NextResponse.json({ success: true, message: 'Tizimga muvaffaqiyatli kirdingiz', user });
     
