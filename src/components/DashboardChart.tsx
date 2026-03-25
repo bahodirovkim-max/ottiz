@@ -28,7 +28,7 @@ export function DashboardChart({ data }: { data: any[] }) {
           <Tooltip 
              cursor={{ fill: 'transparent' }}
              contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
-             formatter={(value: number) => [`${value.toLocaleString()} UZS`, "Tushum"]}
+             formatter={(value: any) => [`${(value || 0).toLocaleString()} UZS`, "Tushum"]}
              labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
           />
           <Bar dataKey="total" radius={[8, 8, 8, 8]}>
