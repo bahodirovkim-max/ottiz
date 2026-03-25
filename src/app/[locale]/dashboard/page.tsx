@@ -35,6 +35,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const currentYear = new Date().getFullYear();
   const allAgreements = user.properties.flatMap((p: any) => p.agreements);
   
+  let activePropertiesCount = new Set(
+    allAgreements
+       .filter((a: any) => a.status !== 'REJECTED' && a.status !== 'ENDED')
+       .map((a: any) => a.propertyId)
+  ).size;
+  
   const actionablePayments: any[] = [];
   
   allAgreements.forEach((agreement: any) => {
@@ -402,7 +408,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#2AABEE]/10 rounded-full blur-2xl"></div>
               <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-2"><Building className="w-4 h-4" /> Faol ob'yektlar</h3>
               <p className="text-3xl sm:text-4xl font-extrabold mt-4 text-zinc-900 dark:text-white tracking-tight">
-                {user.properties.length} <span className="text-xl text-zinc-400 font-medium">ta</span>
+                {activePropertiesCount} <span className="text-xl text-zinc-400 font-medium">ta</span>
               </p>
             </div>
           </div>
