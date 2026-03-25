@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { PaymentActions } from '@/components/PaymentActions';
 
 export default async function InvoicePage({ params }: { params: Promise<{ id: string, locale: string }> }) {
   const { id } = await params;
@@ -8,7 +9,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
     where: { id },
     include: {
       agreement: {
-        include: { tenant: true, property: true }
+        include: { tenant: true, property: { include: { landlord: true } } }
       }
     }
   });
@@ -69,15 +70,15 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        {!isPaid && (
-          <div className="space-y-4">
-            <button className="w-full py-4 bg-[#00AEEF] hover:bg-[#009bda] text-white rounded-2xl font-bold transition-all shadow-sm flex justify-center items-center gap-2 active:scale-[0.98]">
-              Payme orqali to'lash
-            </button>
-            <button className="w-full py-4 bg-[#020b14] hover:bg-black text-[#00c853] dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:border dark:border-zinc-700 rounded-2xl font-bold transition-all shadow-sm flex justify-center items-center gap-2 active:scale-[0.98]">
-              Click orqali to'lash
-            </button>
-          </div>
+        {!isPaid && payment.status !== 'UNDER_REVIEW' && (
+           <PaymentActions paymentId={payment.id} cardNumber={payment.agreement.property.landlord.cardNumber || ''} />
+        )}
+        
+        {payment.status === 'UNDER_REVIEW' && (
+           <div className="p-4 rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 text-center font-bold border border-amber-200 dark:border-amber-500/20">
+             Tasdiqlash kutilmoqda ⏳
+             <p className="text-xs font-medium opacity-80 mt-1">Uy egasi chekni ko'rib chiqyapti</p>
+           </div>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { revalidatePath } from 'next/cache';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -42,6 +43,7 @@ export default async function DashboardPage() {
 
     return {
       id: agreement.tenant.id,
+      paymentId: currentPayment?.id,
       name: agreement.tenant.name || agreement.tenant.phone,
       phone: agreement.tenant.phone,
       property: user.properties.find((p: any) => p.id === agreement.propertyId)?.name,
@@ -50,6 +52,18 @@ export default async function DashboardPage() {
       status: currentPayment?.status || 'PENDING'
     };
   });
+
+  async function acceptPayment(formData: FormData) {
+    'use server';
+    const paymentId = formData.get('paymentId') as string;
+    if (paymentId) {
+      await prisma.payment.update({
+        where: { id: paymentId },
+        data: { status: 'PAID', paidAt: new Date() }
+      });
+      revalidatePath('/uz/dashboard');
+    }
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-[#0a0a0a] p-4 sm:p-8 font-sans transition-colors duration-300">
@@ -126,11 +140,15 @@ export default async function DashboardPage() {
                     <td className="px-8 py-6 text-zinc-600 dark:text-zinc-300">{t.property}</td>
                     <td className="px-8 py-6 text-zinc-600 dark:text-zinc-300">{t.dueDate}</td>
                     <td className="px-8 py-6">
-                      {t.status === 'PAID' ? 
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>To'landi</span> 
-                        : 
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2"></span>Kutilmoqda</span>
-                      }
+                      {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>To'landi</span>}
+                      {t.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2"></span>Kutilmoqda</span>}
+                      {t.status === 'UNDER_REVIEW' && (
+                         <form action={acceptPayment} className="flex items-center">
+                           <input type="hidden" name="paymentId" value={t.paymentId} />
+                           <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 mr-3">Tekshiruvda ⏳</span>
+                           <button type="submit" className="px-3 py-1.5 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all">Qabul Qilish ✅</button>
+                         </form>
+                      )}
                     </td>
                   </tr>
                 ))}
