@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "Ijara va to'lovlarni boshqarish platformasi",
 };
 
+import { TwaProvider } from '@/components/TwaProvider';
+
 export default async function RootLayout({
   children,
   params
@@ -41,9 +43,14 @@ export default async function RootLayout({
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+      </head>
       <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black">
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <TwaProvider>
+            {children}
+          </TwaProvider>
         </NextIntlClientProvider>
       </body>
     </html>
