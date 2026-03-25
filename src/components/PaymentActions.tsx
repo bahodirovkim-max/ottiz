@@ -1,10 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Copy, CreditCard, Send, CheckCircle2 } from 'lucide-react';
 
 export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, cardNumber: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleReview = async () => {
     setLoading(true);
@@ -18,8 +20,11 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
   };
 
   const copyToClipboard = () => {
-    if (cardNumber) navigator.clipboard.writeText(cardNumber);
-    alert("Karta raqami nusxalandi!");
+    if (cardNumber) {
+      navigator.clipboard.writeText(cardNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   let displayCard = cardNumber || "Karta ulanmagan";
@@ -29,17 +34,20 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
 
   return (
     <div className="space-y-4">
-      <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700">
-        <p className="text-sm text-zinc-500 mb-2">Uy egasining karta raqami:</p>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="text-xl tracking-widest font-mono font-bold text-zinc-900 dark:text-white">
+      <div className="p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700/50 shadow-inner">
+        <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-3 uppercase tracking-wider flex items-center gap-1.5">
+          <CreditCard className="w-3.5 h-3.5" /> Uy egasining karta raqami
+        </p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <p className="text-2xl tracking-[0.2em] font-mono font-extrabold text-zinc-900 dark:text-white">
             {displayCard}
           </p>
           <button 
              onClick={copyToClipboard}
-             className="text-xs w-full sm:w-auto bg-zinc-200 dark:bg-zinc-700 px-4 py-2 rounded-lg hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-all font-semibold"
+             disabled={!cardNumber}
+             className={`flex justify-center items-center gap-2 text-xs w-full sm:w-auto px-5 py-3 rounded-xl transition-all font-bold shadow-sm ${copied ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/30' : 'bg-white dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600 ring-1 ring-zinc-200 dark:ring-zinc-600'} disabled:opacity-50`}
           >
-            Nusxalash
+            {copied ? <><CheckCircle2 className="w-4 h-4" /> Nusxalandi</> : <><Copy className="w-4 h-4 text-zinc-400" /> Nusxalash</>}
           </button>
         </div>
       </div>
@@ -47,13 +55,13 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
       <button 
         disabled={loading || !cardNumber}
         onClick={handleReview}
-        className="w-full py-4 bg-[#2AABEE] hover:bg-[#1f8fc9] text-white rounded-2xl font-bold transition-all shadow-sm active:scale-[0.98] disabled:opacity-50"
+        className="group relative flex items-center justify-center gap-2 w-full py-4.5 bg-[#2AABEE] hover:bg-[#1f8fc9] text-white rounded-2xl text-base font-extrabold transition-all shadow-[0_4px_14px_0_rgba(42,171,238,0.3)] hover:shadow-[0_6px_20px_rgba(42,171,238,0.23)] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
       >
-        {loading ? 'Yuborilmoqda...' : 'To\'ladim, tasdiqqa jo\'natish'}
+        {loading ? 'Yuborilmoqda...' : <><CheckCircle2 className="w-5 h-5 flex-shrink-0" /> To'lov qildim, tasdiqqa yuborish</>}
       </button>
       
-      <p className="text-xs text-center text-zinc-500 mt-2">
-         * Avval Karta nusxalanib bank orqali (Click/Payme) to'lanadi, so'ngra shu tugma bosiladi.
+      <p className="text-xs text-center text-zinc-500 font-medium px-2 leading-relaxed opacity-80 mt-3 flex items-center justify-center gap-1.5">
+         <Send className="w-3.5 h-3.5 flex-shrink-0" /> Markaziy tizimga so'rov yuboriladi
       </p>
     </div>
   );
