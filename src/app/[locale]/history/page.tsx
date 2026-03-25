@@ -94,7 +94,7 @@ export default async function HistoryPage() {
                     <td className="px-6 sm:px-8 py-6 text-zinc-600 dark:text-zinc-300 font-medium">{p.counterparty}</td>
                     <td className="px-6 sm:px-8 py-6">
                       <span className="inline-flex items-center font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
-                        <CheckCircle2 className="w-4 h-4 mr-1.5" /> +{p.amount?.toLocaleString()}
+                        <CheckCircle2 className="w-4 h-4 mr-1.5" /> +{(p.paidAmount || p.amount)?.toLocaleString()}
                       </span>
                     </td>
                   </tr>

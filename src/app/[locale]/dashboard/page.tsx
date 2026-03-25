@@ -38,7 +38,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     const amount = currentPayment ? currentPayment.amount : agreement.monthlyAmount;
     
     if (currentPayment?.status === 'PAID') {
-      receivedTotal += amount;
+      receivedTotal += (currentPayment.paidAmount || currentPayment.amount);
     } else if (currentPayment) {
       upcomingTotal += amount;
       if (currentPayment.dueDate < new Date()) {
@@ -74,9 +74,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         include: { agreement: { include: { property: true } } }
       });
       if (payment?.agreement.property.landlordId === sessionId) {
+        // Calculate actual paidAmount based on Halal discount
+        const now = new Date();
+        const d1 = new Date(now); d1.setHours(0,0,0,0);
+        const d2 = new Date(payment.dueDate); d2.setHours(0,0,0,0);
+        
+        let actualPaid = payment.amount;
+        if (payment.paymentType === 'RENT' && payment.agreement.discountAmount && d1 <= d2) {
+           actualPaid -= payment.agreement.discountAmount;
+        }
+
         await prisma.payment.update({
           where: { id: paymentId },
-          data: { status: 'PAID', paidAt: new Date() }
+          data: { status: 'PAID', paidAt: now, paidAmount: actualPaid }
         });
         revalidatePath('/uz/dashboard');
       }
