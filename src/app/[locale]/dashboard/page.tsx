@@ -31,34 +31,68 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   let lateTenants = 0;
 
   const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
   const allAgreements = user.properties.flatMap((p: any) => p.agreements);
   
-  const formattedTenants = allAgreements.filter((a: any) => a.status !== 'REJECTED' && a.status !== 'ENDED').map((agreement: any) => {
-    const currentPayment = agreement.payments.find((p: any) => p.dueDate.getMonth() === currentMonth);
-    const amount = currentPayment ? currentPayment.amount : agreement.monthlyAmount;
-    
-    if (currentPayment?.status === 'PAID') {
-      receivedTotal += (currentPayment.paidAmount || currentPayment.amount);
-    } else if (currentPayment) {
-      upcomingTotal += amount;
-      if (currentPayment.dueDate < new Date()) {
-         lateTenants++;
-      }
-    }
+  const actionablePayments: any[] = [];
+  
+  allAgreements.forEach((agreement: any) => {
+      if (agreement.status === 'REJECTED' || agreement.status === 'ENDED') return;
 
-    return {
-      id: agreement.tenant.id,
-      agreementId: agreement.id,
-      paymentId: currentPayment?.id,
-      trustScore: agreement.tenant.trustScore,
-      name: agreement.tenant.name || agreement.tenant.phone,
-      phone: agreement.tenant.phone,
-      property: user.properties.find((p: any) => p.id === agreement.propertyId)?.name,
-      amount: amount,
-      dueDate: currentPayment?.dueDate.toLocaleDateString() || agreement.startDate.toLocaleDateString(),
-      status: agreement.status === 'PENDING' ? 'AGREEMENT_PENDING' : (currentPayment?.status || 'PENDING')
-    };
+      agreement.payments.forEach((p: any) => {
+         const d = new Date(p.dueDate);
+         if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+             if (p.status === 'PAID') {
+                 receivedTotal += (p.paidAmount || p.amount);
+             } else {
+                 upcomingTotal += p.amount;
+                 if (d < new Date()) lateTenants++;
+             }
+         }
+         
+         // Show ALL pending or under_review payments, PLUS any paid ones this month
+         if (p.status !== 'PAID' || (d.getMonth() === currentMonth && d.getFullYear() === currentYear)) {
+             actionablePayments.push({
+                id: agreement.tenant.id,
+                agreementId: agreement.id,
+                paymentId: p.id,
+                trustScore: agreement.tenant.trustScore,
+                name: agreement.tenant.name || agreement.tenant.phone,
+                phone: agreement.tenant.phone,
+                property: user.properties.find((prop: any) => prop.id === agreement.propertyId)?.name,
+                amount: p.amount,
+                paidAmount: p.paidAmount,
+                title: p.title || (p.paymentType === 'DEPOSIT' ? 'Zaklad (Depozit)' : 'Ijara tolovi'),
+                paymentType: p.paymentType,
+                dueDate: p.dueDate.toLocaleDateString(),
+                rawDueDate: p.dueDate,
+                status: p.status,
+                agreementStatus: agreement.status
+             });
+         }
+      });
+      
+      // If agreement has NO payments but is PENDING (just requested):
+      if (agreement.payments.length === 0 && agreement.status === 'PENDING') {
+         actionablePayments.push({
+            id: agreement.tenant.id,
+            agreementId: agreement.id,
+            paymentId: null,
+            trustScore: agreement.tenant.trustScore,
+            name: agreement.tenant.name || agreement.tenant.phone,
+            phone: agreement.tenant.phone,
+            property: user.properties.find((prop: any) => prop.id === agreement.propertyId)?.name,
+            amount: agreement.monthlyAmount,
+            title: 'Yangi Shartnoma',
+            dueDate: 'Kutilmoqda',
+            rawDueDate: new Date(8640000000000000), 
+            status: 'AGREEMENT_PENDING',
+            agreementStatus: agreement.status
+         });
+      }
   });
+
+  actionablePayments.sort((a, b) => new Date(a.rawDueDate).getTime() - new Date(b.rawDueDate).getTime());
 
   // SERVER ACTIONS
   async function acceptPayment(formData: FormData) {
@@ -74,7 +108,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         include: { agreement: { include: { property: true } } }
       });
       if (payment?.agreement.property.landlordId === sessionId) {
-        // Calculate actual paidAmount based on Halal discount
         const now = new Date();
         const d1 = new Date(now); d1.setHours(0,0,0,0);
         const d2 = new Date(payment.dueDate); d2.setHours(0,0,0,0);
@@ -154,14 +187,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       });
       
       const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 5);
+      dueDate.setDate(agreement.paymentDay || 1);
+      if (dueDate < new Date()) {
+         dueDate.setMonth(dueDate.getMonth() + 1); // move to next month if day passed
+      }
       
       await prisma.payment.create({
          data: {
            agreementId: agreement.id,
            amount: agreement.monthlyAmount,
            dueDate: dueDate,
-           status: 'PENDING'
+           status: 'PENDING',
+           paymentType: 'RENT',
+           title: 'Oylik Ijara'
          }
       });
       revalidatePath('/uz/dashboard');
@@ -239,7 +277,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {rentedAgreements.map((agr: any) => {
-                const currentPayment = agr.payments.find((p: any) => p.dueDate.getMonth() === currentMonth);
+                const pendingPayments = agr.payments.filter((p: any) => p.status === 'PENDING' || p.status === 'UNDER_REVIEW').sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
                 
                 return (
                   <div key={agr.id} className="bg-white dark:bg-zinc-900 rounded-[2rem] p-6 shadow-sm border border-zinc-100 dark:border-zinc-800 flex flex-col justify-between group hover:shadow-md transition-all">
@@ -258,7 +296,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                              <span className="font-semibold text-zinc-900 dark:text-white px-2 py-1 bg-zinc-50 dark:bg-zinc-800 rounded-md">{agr.property.landlord.name || agr.property.landlord.phone}</span>
                           </p>
                           <p className="text-sm text-zinc-500 flex justify-between items-center">
-                             <span className="flex items-center gap-1.5"><Receipt className="w-3.5 h-3.5" /> Narxi:</span> 
+                             <span className="flex items-center gap-1.5"><Receipt className="w-3.5 h-3.5" /> Ijara normasi:</span> 
                              <span className="font-bold text-zinc-900 dark:text-white">{agr.monthlyAmount.toLocaleString()} UZS</span>
                           </p>
                        </div>
@@ -280,14 +318,21 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                          </form>
                        </div>
                      ) : (
-                       <div className="mt-4">
-                         {currentPayment ? (
-                           <a href={`/uz/invoice/${currentPayment.id}`} className="flex items-center justify-center gap-2 w-full py-4 bg-black text-white dark:bg-white dark:text-black rounded-2xl font-bold hover:scale-105 active:scale-95 transition-transform shadow-[0_5px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_5px_15px_rgba(255,255,255,0.1)]">
-                             To'lovlarni boshqarish <ArrowRight className="w-4 h-4" />
-                           </a>
+                       <div className="mt-4 space-y-2">
+                         {pendingPayments.length > 0 ? (
+                           pendingPayments.map((p: any) => (
+                             <a key={p.id} href={`/uz/invoice/${p.id}`} className="flex items-center justify-between px-5 py-4 bg-black text-white dark:bg-white dark:text-black rounded-2xl font-bold hover:scale-105 active:scale-95 transition-transform shadow-[0_5px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_5px_15px_rgba(255,255,255,0.1)]">
+                               <div className="flex flex-col items-start gap-0.5">
+                                 <span className="text-xs uppercase tracking-wider opacity-60 flex items-center gap-1"><Receipt className="w-3 h-3" /> {p.title || 'To\'lov cheki'}</span>
+                                 <span className="text-sm">{p.amount.toLocaleString()} UZS</span>
+                               </div>
+                               <ArrowRight className="w-5 h-5 flex-shrink-0" />
+                             </a>
+                           ))
                          ) : (
-                           <button disabled className="flex items-center justify-center w-full py-4 bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600 rounded-2xl font-bold cursor-not-allowed">
-                             Hozircha ochiq chek yo'q
+                           <button disabled className="flex flex-col items-center justify-center w-full py-4 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-2xl font-bold border border-emerald-100 dark:border-emerald-500/20 shadow-sm opacity-90 cursor-not-allowed text-sm">
+                             Hozircha ochiq qarz yo'q
+                             <span className="text-xs font-medium opacity-80 flex items-center gap-1 mt-0.5"><CheckCircle className="w-3.5 h-3.5" /> Barchasi to'langan</span>
                            </button>
                          )}
                        </div>
@@ -341,30 +386,36 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
 
           <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-zinc-100 dark:border-zinc-800 overflow-hidden">
-            {formattedTenants.length === 0 ? (
+            {actionablePayments.length === 0 ? (
               <div className="p-16 flex flex-col items-center justify-center text-center">
                  <div className="w-16 h-16 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4">
                    <FileSearch className="w-8 h-8" />
                  </div>
-                 <p className="text-zinc-500 font-medium">Hali hech qanday ijarachi biriktirilmagan</p>
+                 <p className="text-zinc-500 font-medium">Hali hech qanday aktiv kvitansiya mavjud emas.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead className="bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-500 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-800">
                     <tr>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Mulk & Turi</th>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Ijarachi</th>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Mulk nomi</th>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Muddat</th>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Ijara summasi</th>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Amallar paneli</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Summa (UXS)</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Holati / Amallar</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
-                    {formattedTenants.map((t: any, idx: number) => (
+                    {actionablePayments.map((t: any, idx: number) => (
                       <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
                         <td className="px-6 sm:px-8 py-6">
-                          <p className="font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                           <p className="font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
+                              {t.property}
+                           </p>
+                           <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded shadow-sm inline-block">{t.title}</p>
+                           <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">Muddat: {t.dueDate}</p>
+                        </td>
+                        <td className="px-6 sm:px-8 py-6">
+                          <p className="font-bold text-zinc-900 dark:text-white flex flex-col items-start gap-2">
                              {t.name}
                              <span className="flex items-center gap-1 text-[10px] px-2 py-1 bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400 rounded-md font-bold shadow-sm ring-1 ring-yellow-200 dark:ring-yellow-500/20">
                                <ShieldCheck className="w-3 h-3" /> {t.trustScore}
@@ -372,47 +423,50 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                           </p>
                           <p className="text-xs text-zinc-400 mt-1 font-medium tracking-wide">{t.phone}</p>
                         </td>
-                        <td className="px-6 sm:px-8 py-6 text-zinc-600 dark:text-zinc-300 font-medium">{t.property}</td>
-                        <td className="px-6 sm:px-8 py-6 text-zinc-600 dark:text-zinc-300 font-bold">{t.dueDate}</td>
-                        <td className="px-6 sm:px-8 py-6 text-zinc-900 dark:text-white font-extrabold">{t.amount?.toLocaleString()} <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">UZS</span></td>
+                        <td className="px-6 sm:px-8 py-6">
+                           <p className="text-zinc-900 dark:text-white font-extrabold text-xl tracking-tight">{(t.paidAmount || t.amount)?.toLocaleString()}</p>
+                           {t.paidAmount && <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider mt-1">Chegirma qo'llandi</p>}
+                        </td>
                         <td className="px-6 sm:px-8 py-6">
                           {t.status === 'AGREEMENT_PENDING' ? (
-                             <span className="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 mr-2 shadow-sm border border-zinc-200 dark:border-zinc-700">Tasdiq kutilmoqda <Clock className="w-3.5 h-3.5 ml-2" /></span>
+                             <span className="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-sm border border-zinc-200 dark:border-zinc-700">Tasdiq kutilmoqda <Clock className="w-3.5 h-3.5 ml-2" /></span>
                           ) : t.status === 'UNDER_REVIEW' ? (
-                            <div className="flex items-center">
-                              <span className="inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 dark:from-amber-500/10 dark:to-orange-500/10 dark:text-amber-400 mr-3 shadow-inner ring-1 ring-amber-200 dark:ring-amber-500/30">
+                            <div className="flex flex-col items-start gap-3">
+                              <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 dark:from-amber-500/10 dark:to-orange-500/10 dark:text-amber-400 shadow-inner ring-1 ring-amber-200 dark:ring-amber-500/30">
                                 Tekshiruvda <Clock className="w-3.5 h-3.5 ml-2 animate-pulse" />
                               </span>
                               <div className="flex gap-2">
                                  <form action={rejectPayment}>
                                    <input type="hidden" name="paymentId" value={t.paymentId} />
                                    <button type="submit" title="To'lov tushmadi (Rad etish)" className="flex items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl text-xs font-bold transition-all shadow-sm">
-                                     Rad <XCircle className="w-3.5 h-3.5 ml-1" />
+                                     Rad etish <XCircle className="w-3.5 h-3.5 ml-1" />
                                    </button>
                                  </form>
                                  <form action={acceptPayment}>
                                    <input type="hidden" name="paymentId" value={t.paymentId} />
                                    <button type="submit" title="Pul kelib tushdi (Tasdiqlash)" className="flex items-center px-4 py-2 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all shadow-md shadow-[#2AABEE]/20 hover:shadow-lg">
-                                     Qabul <CheckCircle className="w-3.5 h-3.5 ml-1" />
+                                     Tasdiqlash <CheckCircle className="w-3.5 h-3.5 ml-1" />
                                    </button>
                                  </form>
                               </div>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-2">
-                              {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></span>To'landi</span>}
-                              {t.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2 shadow-[0_0_5px_rgba(244,63,94,0.5)]"></span>To'lanmadi</span>}
+                            <div className="flex flex-col items-start gap-3">
+                              {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></span>To'landi</span>}
+                              {t.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2 shadow-[0_0_5px_rgba(244,63,94,0.5)]"></span>To'lanmadi</span>}
                               
-                              <div className="flex items-center gap-2 ml-4 border-l border-zinc-200 dark:border-zinc-700 pl-4">
+                              <div className="flex items-center gap-2 relative">
                                 <a href={`/uz/utility/new?agreementId=${t.agreementId}`} title="Kommunal to'lov yozish" className="flex items-center px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-xl transition-all shadow-sm text-xs font-bold whitespace-nowrap">
-                                  Svet/Gaz <Zap className="w-3.5 h-3.5 ml-1" />
+                                  + Qarz yozish <Zap className="w-3.5 h-3.5 ml-1" />
                                 </a>
-                                <form action={endAgreement}>
-                                  <input type="hidden" name="agreementId" value={t.agreementId} />
-                                  <button type="submit" title="Shartnomani yakunlash (Arxiv)" className="flex items-center px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-500 hover:text-rose-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-400 dark:hover:text-rose-400 rounded-xl transition-all shadow-sm text-xs font-bold">
-                                    Arxivlash <X className="w-3.5 h-3.5 ml-1" />
-                                  </button>
-                                </form>
+                                {t.paymentType === 'RENT' && (
+                                   <form action={endAgreement}>
+                                     <input type="hidden" name="agreementId" value={t.agreementId} />
+                                     <button type="submit" title="Shartnomani yakunlash (Arxiv)" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800">
+                                       <X className="w-4 h-4" />
+                                     </button>
+                                   </form>
+                                )}
                               </div>
                             </div>
                           )}
