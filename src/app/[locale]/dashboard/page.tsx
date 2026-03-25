@@ -48,6 +48,7 @@ export default async function DashboardPage() {
       id: agreement.tenant.id,
       agreementId: agreement.id,
       paymentId: currentPayment?.id,
+      trustScore: agreement.tenant.trustScore,
       name: agreement.tenant.name || agreement.tenant.phone,
       phone: agreement.tenant.phone,
       property: user.properties.find((p: any) => p.id === agreement.propertyId)?.name,
@@ -257,7 +258,10 @@ export default async function DashboardPage() {
                     {formattedTenants.map((t: any, idx: number) => (
                       <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
                         <td className="px-6 sm:px-8 py-6">
-                          <p className="font-semibold text-zinc-900 dark:text-white">{t.name}</p>
+                          <p className="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                             {t.name}
+                             <span className="text-[10px] px-2 py-0.5 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full font-bold shadow-sm whitespace-nowrap">⭐️ {t.trustScore}</span>
+                          </p>
                           <p className="text-xs text-zinc-500 mt-1">{t.phone}</p>
                         </td>
                         <td className="px-6 sm:px-8 py-6 text-zinc-600 dark:text-zinc-300">{t.property}</td>
@@ -272,15 +276,21 @@ export default async function DashboardPage() {
                               <button type="submit" className="px-3 py-1.5 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all">Qabul ✅</button>
                             </form>
                           ) : (
-                            <div className="flex items-center justify-between gap-2 max-w-[140px]">
+                            <div className="flex items-center gap-2">
                               {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>To'landi</span>}
                               {t.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2"></span>Kutamiz</span>}
-                              <form action={deleteProperty}>
-                                <input type="hidden" name="agreementId" value={t.agreementId} />
-                                <button type="submit" title="Mulkni o'chirish" className="px-2 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-sm active:scale-[0.98]">
-                                  O'chirish 🗑
-                                </button>
-                              </form>
+                              
+                              <div className="flex items-center gap-1.5 ml-2 border-l border-zinc-200 dark:border-zinc-700 pl-3">
+                                <a href={`/uz/utility/new?agreementId=${t.agreementId}`} title="Kommunal to'lov qo'shish" className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl transition-all shadow-sm active:scale-[0.98] text-xs font-bold whitespace-nowrap">
+                                  Svet/Gaz 💡
+                                </a>
+                                <form action={deleteProperty}>
+                                  <input type="hidden" name="agreementId" value={t.agreementId} />
+                                  <button type="submit" title="Mulkni o'chirish" className="px-2 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-sm active:scale-[0.98] text-xs font-bold">
+                                    🗑
+                                  </button>
+                                </form>
+                              </div>
                             </div>
                           )}
                         </td>

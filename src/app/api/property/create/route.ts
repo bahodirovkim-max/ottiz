@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const token = cookieStore.get('auth-token')?.value;
     if (!token) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    const { name, price, tenantPhone } = await req.json();
+    const { name, price, tenantPhone, paymentDay, deposit, discountAmount } = await req.json();
 
     if (!name || !price || !tenantPhone) {
       return NextResponse.json({ success: false, error: 'Barcha maydonlarni to`ldirish shart!' }, { status: 400 });
@@ -45,9 +45,25 @@ export async function POST(req: Request) {
         startDate: new Date(),
         monthlyAmount: parseFloat(price),
         status: 'PENDING',
-        isActive: false
+        isActive: false,
+        paymentDay: parseInt(paymentDay) || 1,
+        deposit: deposit ? parseFloat(deposit) : null,
+        discountAmount: discountAmount ? parseFloat(discountAmount) : null
       }
     });
+
+    if (deposit) {
+       await prisma.payment.create({
+         data: {
+            agreementId: agreement.id,
+            amount: parseFloat(deposit),
+            dueDate: new Date(), // Deposit due immediately
+            status: 'PENDING',
+            paymentType: 'DEPOSIT',
+            title: 'Zaklad (Depozit) tolovi'
+         }
+       });
+    }
 
     // 5. Mock SMS/Telegram notification to tenant
     console.log(`\n🔔 [ESKIZ SMS/BOT] XABAR YUBORILDI -> ${formattedPhone} raqamiga!`);

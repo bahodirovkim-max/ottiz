@@ -11,7 +11,10 @@ export default function NewPropertyPage() {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    tenantPhone: '+998'
+    tenantPhone: '+998',
+    paymentDay: '1',
+    deposit: '',
+    discountAmount: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,6 +86,44 @@ export default function NewPropertyPage() {
              />
           </div>
 
+          <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-4">
+             <div>
+                <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2">To'lov sanasi (har oyning qaysi kuni?)</label>
+                <input 
+                   type="number" 
+                   min="1" max="31"
+                   required
+                   value={formData.paymentDay}
+                   onChange={(e) => setFormData({...formData, paymentDay: e.target.value})}
+                   className="w-full rounded-2xl border-0 py-4 px-4 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-[#2AABEE] bg-white dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all"
+                />
+             </div>
+             
+             <div className="flex gap-4">
+                <div className="flex-1">
+                   <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2">Zaklad (Ixtiyoriy)</label>
+                   <input 
+                      type="number" 
+                      placeholder="0 UZS"
+                      value={formData.deposit}
+                      onChange={(e) => setFormData({...formData, deposit: e.target.value})}
+                      className="w-full rounded-2xl border-0 py-4 px-4 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-[#2AABEE] bg-white dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all"
+                   />
+                </div>
+                <div className="flex-1">
+                   <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2">Chegirma (Vaqtida to'lasa)</label>
+                   <input 
+                      type="number" 
+                      placeholder="0 UZS"
+                      value={formData.discountAmount}
+                      onChange={(e) => setFormData({...formData, discountAmount: e.target.value})}
+                      className="w-full rounded-2xl border-0 py-4 px-4 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-[#2AABEE] bg-white dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all"
+                   />
+                </div>
+             </div>
+             <p className="text-xs text-zinc-500 mt-2">* Agar ijarachi belgilangan to'lov sanasidan oldin qarzni to'lasa, yashil chegirma summasi yoqiladi (Halol).</p>
+          </div>
+
           <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
              <label className="block text-sm font-medium text-zinc-900 dark:text-zinc-300 mb-2">Ijarachining Telefon Raqami</label>
              <input 
@@ -93,7 +134,7 @@ export default function NewPropertyPage() {
                 onChange={(e) => setFormData({...formData, tenantPhone: e.target.value})}
                 className="w-full rounded-2xl border-0 py-4 px-4 text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-[#2AABEE] bg-white dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all"
              />
-             <p className="text-xs text-zinc-500 mt-2">* Tizim avtomat ravishda shu raqam egasiga birinchi oylik to'lov kvitansiyasini (invoice) yaratadi.</p>
+             <p className="text-xs text-zinc-500 mt-2">* Tizim avtomat ravishda shu raqam egasiga shartnomani yuboradi.</p>
           </div>
 
           <div className="pt-6">

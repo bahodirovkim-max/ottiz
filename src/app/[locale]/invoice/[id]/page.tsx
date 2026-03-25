@@ -24,6 +24,13 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
   const isPaid = payment.status === 'PAID';
 
+  const referenceDate = payment.paidAt || new Date();
+  const d1 = new Date(referenceDate); d1.setHours(0,0,0,0);
+  const d2 = new Date(payment.dueDate); d2.setHours(0,0,0,0);
+  
+  const hasDiscount = payment.paymentType === 'RENT' && payment.agreement.discountAmount && d1 <= d2;
+  const finalAmount = hasDiscount && payment.agreement.discountAmount ? (payment.amount - payment.agreement.discountAmount) : payment.amount;
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black p-4 sm:p-8 flex flex-col items-center justify-center font-sans tracking-tight">
       <div className="w-full max-w-md bg-white dark:bg-zinc-900/40 p-6 sm:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-zinc-100 dark:border-zinc-800 transition-all">
@@ -45,18 +52,20 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
              {isPaid ? "To'lov o'tgan" : "To'lov kutilmoqda"}
            </h1>
            <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">
-             {isPaid ? "Rahmat! Ijarangiz to'langan" : "Ushbu oy uchun to'lovingizni amalga oshiring"}
+             {isPaid ? "Rahmat! To'lovingiz tasdiqlangan" : "Iltimos to'lovni amalga oshiring"}
            </p>
         </div>
 
         <div className="space-y-5 mb-10">
           <div className="flex justify-between items-center pb-4 border-b border-zinc-100/80 dark:border-zinc-800/80">
-            <span className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">Ijarachi</span>
-            <span className="text-zinc-900 dark:text-white font-semibold">{payment.agreement.tenant.name || payment.agreement.tenant.phone}</span>
+            <span className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">To'lov turi</span>
+            <span className="text-zinc-900 dark:text-white font-bold px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg whitespace-nowrap overflow-hidden text-ellipsis max-w-[170px]">
+               {payment.title || (payment.paymentType === 'DEPOSIT' ? 'Zaklad (Depozit)' : 'Oylik Ijara')}
+            </span>
           </div>
           <div className="flex justify-between items-center pb-4 border-b border-zinc-100/80 dark:border-zinc-800/80">
-            <span className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">Mulk manzili</span>
-            <span className="text-zinc-900 dark:text-white font-semibold text-right max-w-[150px] truncate">{payment.agreement.property.name}</span>
+            <span className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">Ijarachi</span>
+            <span className="text-zinc-900 dark:text-white font-semibold">{payment.agreement.tenant.name || payment.agreement.tenant.phone}</span>
           </div>
           <div className="flex justify-between items-center pb-4 border-b border-zinc-100/80 dark:border-zinc-800/80">
             <span className="text-zinc-500 dark:text-zinc-400 font-medium text-sm">Eng so'ngi muddat</span>
@@ -64,9 +73,27 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               {payment.dueDate.toLocaleDateString()}
             </span>
           </div>
+
+          {!isPaid && hasDiscount && (
+             <div className="bg-emerald-50 dark:bg-emerald-500/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-500/20 mb-2">
+                <p className="text-emerald-700 dark:text-emerald-400 text-sm font-semibold flex items-center justify-between">
+                   <span>Muddati yetmasdan to'layotganingiz uchun chegirma! 🎉</span>
+                   <span className="whitespace-nowrap ml-2">-{payment.agreement.discountAmount?.toLocaleString()} UZS</span>
+                </p>
+             </div>
+          )}
+          {isPaid && hasDiscount && (
+             <p className="text-emerald-600 text-xs text-right font-medium">* Avvalgi to'lovda chegirma qilingan.</p>
+          )}
+
           <div className="flex justify-between items-center pt-2">
             <span className="text-zinc-500 dark:text-zinc-400 font-medium text-lg">Jami summa</span>
-            <span className="text-black dark:text-white font-bold text-2xl">{payment.amount.toLocaleString()} {payment.currency}</span>
+            <div className="text-right flex items-center gap-2">
+              {hasDiscount && (
+                 <span className="text-zinc-400 line-through text-sm">{payment.amount.toLocaleString()} UZS</span>
+              )}
+              <span className="text-black dark:text-white font-bold text-2xl">{finalAmount.toLocaleString()} {payment.currency}</span>
+            </div>
           </div>
         </div>
 

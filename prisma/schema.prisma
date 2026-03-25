@@ -34,6 +34,7 @@ model User {
   name       String?
   cardNumber String?
   role       Role     @default(TENANT)
+  trustScore Int      @default(100)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -64,6 +65,11 @@ model RentAgreement {
   endDate       DateTime?
   monthlyAmount Float
   currency      String   @default("UZS")
+  
+  paymentDay    Int      @default(1)
+  deposit       Float?
+  discountAmount Float?
+
   isActive      Boolean  @default(true)
   status        AgreementStatus @default(PENDING)
   createdAt     DateTime @default(now())
@@ -83,6 +89,9 @@ model Payment {
   dueDate       DateTime
   paidAt        DateTime?
   paymentMethod String?
+  paymentType   String        @default("RENT") // RENT, UTILITY, DEPOSIT
+  title         String?       // E.g. Svet, Gaz
+  paidAmount    Float?        // Exact amount paid (if discount applied)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
