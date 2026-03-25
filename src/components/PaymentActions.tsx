@@ -22,13 +22,18 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
     alert("Karta raqami nusxalandi!");
   };
 
+  let displayCard = cardNumber || "Karta ulanmagan";
+  if (cardNumber && cardNumber.length === 16) {
+     displayCard = cardNumber.match(/.{1,4}/g)?.join(' ') || cardNumber;
+  }
+
   return (
     <div className="space-y-4">
       <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700">
         <p className="text-sm text-zinc-500 mb-2">Uy egasining karta raqami:</p>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="text-xl font-mono font-bold text-zinc-900 dark:text-white">
-            {cardNumber || "Karta ulanmagan"}
+          <p className="text-xl tracking-widest font-mono font-bold text-zinc-900 dark:text-white">
+            {displayCard}
           </p>
           <button 
              onClick={copyToClipboard}
