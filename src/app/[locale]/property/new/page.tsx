@@ -46,9 +46,9 @@ export default function NewPropertyPage() {
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Yangi Mulk</h1>
           <p className="text-sm mt-1 text-zinc-500 dark:text-zinc-400">Ijaraga berilayotgan uy va mijoz ma'lumotlari</p>
         </div>
-        <Link href="/uz/dashboard" className="text-sm font-bold px-4 py-2 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">
+        <a href="/uz/dashboard" className="text-sm font-bold px-4 py-2 bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white rounded-xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors block">
           &larr; Bekor qilish
-        </Link>
+        </a>
       </header>
 
       <div className="max-w-xl mx-auto bg-white dark:bg-zinc-900 rounded-[2rem] p-6 sm:p-10 shadow-sm border border-zinc-100 dark:border-zinc-800">
