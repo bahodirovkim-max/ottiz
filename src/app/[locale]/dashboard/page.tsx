@@ -32,7 +32,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const currentMonth = new Date().getMonth();
   const allAgreements = user.properties.flatMap((p: any) => p.agreements);
   
-  const formattedTenants = allAgreements.filter((a: any) => a.status !== 'REJECTED').map((agreement: any) => {
+  const formattedTenants = allAgreements.filter((a: any) => a.status !== 'REJECTED' && a.status !== 'ENDED').map((agreement: any) => {
     const currentPayment = agreement.payments.find((p: any) => p.dueDate.getMonth() === currentMonth);
     const amount = currentPayment ? currentPayment.amount : agreement.monthlyAmount;
     
@@ -72,16 +72,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     }
   }
 
-  async function deleteProperty(formData: FormData) {
+  async function endAgreement(formData: FormData) {
     'use server';
     const agreementId = formData.get('agreementId') as string;
-    const agreement = await prisma.rentAgreement.findUnique({ where: { id: agreementId } });
-    if (agreement) {
-       await prisma.payment.deleteMany({ where: { agreementId } });
-       await prisma.rentAgreement.delete({ where: { id: agreementId } });
-       await prisma.property.delete({ where: { id: agreement.propertyId } });
-       revalidatePath('/uz/dashboard');
-    }
+    await prisma.rentAgreement.update({
+       where: { id: agreementId },
+       data: { status: 'ENDED', isActive: false, endDate: new Date() }
+    });
+    revalidatePath('/uz/dashboard');
   }
 
   // TENANT SERVER ACTIONS
@@ -121,7 +119,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     revalidatePath('/uz/dashboard');
   }
 
-  const rentedAgreements = user.agreements.filter((a: any) => a.status !== 'REJECTED');
+  const rentedAgreements = user.agreements.filter((a: any) => a.status !== 'REJECTED' && a.status !== 'ENDED');
 
   const showTabs = true;
   const defaultView = user.role === 'LANDLORD' || (rentedAgreements.length === 0 && allAgreements.length > 0) ? 'landlord' : 'tenant';
@@ -139,11 +137,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             👤
           </a>
         </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <a href="/uz/profile" className="hidden sm:flex px-5 py-3.5 rounded-2xl text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 transition-all shadow-sm active:scale-[0.98]">
+        <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+          <a href="/uz/history" className="hidden sm:flex px-5 py-3.5 rounded-2xl text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
+            To'lov Tarixi 📚
+          </a>
+          <a href="/uz/profile" className="hidden sm:flex px-5 py-3.5 rounded-2xl text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
             Profil sozlamalari
           </a>
-          <a href="/uz/property/new" className="flex-1 sm:flex-none justify-center flex bg-black text-white dark:bg-white dark:text-black px-5 py-3.5 rounded-2xl text-sm font-bold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98] shadow-sm">
+          <a href="/uz/property/new" className="flex-1 sm:flex-none justify-center flex bg-black text-white dark:bg-white dark:text-black px-5 py-3.5 rounded-2xl text-sm font-bold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98] shadow-sm whitespace-nowrap">
             + Yangi mulk
           </a>
         </div>
@@ -301,10 +302,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                                 <a href={`/uz/utility/new?agreementId=${t.agreementId}`} title="Kommunal to'lov qo'shish" className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-600 rounded-xl transition-all shadow-sm active:scale-[0.98] text-xs font-bold whitespace-nowrap">
                                   Svet/Gaz 💡
                                 </a>
-                                <form action={deleteProperty}>
+                                <form action={endAgreement}>
                                   <input type="hidden" name="agreementId" value={t.agreementId} />
-                                  <button type="submit" title="Mulkni o'chirish" className="px-2 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-sm active:scale-[0.98] text-xs font-bold">
-                                    🗑
+                                  <button type="submit" title="Shartnomani yakunlash va arxivlash" className="px-2 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-400 rounded-xl transition-all shadow-sm active:scale-[0.98] text-xs font-bold">
+                                    Yakunlash 🛑
                                   </button>
                                 </form>
                               </div>
