@@ -43,6 +43,7 @@ export default async function DashboardPage() {
 
     return {
       id: agreement.tenant.id,
+      agreementId: agreement.id,
       paymentId: currentPayment?.id,
       name: agreement.tenant.name || agreement.tenant.phone,
       phone: agreement.tenant.phone,
@@ -62,6 +63,18 @@ export default async function DashboardPage() {
         data: { status: 'PAID', paidAt: new Date() }
       });
       revalidatePath('/uz/dashboard');
+    }
+  }
+
+  async function deleteProperty(formData: FormData) {
+    'use server';
+    const agreementId = formData.get('agreementId') as string;
+    const agreement = await prisma.rentAgreement.findUnique({ where: { id: agreementId } });
+    if (agreement) {
+       await prisma.payment.deleteMany({ where: { agreementId } });
+       await prisma.rentAgreement.delete({ where: { id: agreementId } });
+       await prisma.property.delete({ where: { id: agreement.propertyId } });
+       revalidatePath('/uz/dashboard');
     }
   }
 
@@ -140,14 +153,23 @@ export default async function DashboardPage() {
                     <td className="px-8 py-6 text-zinc-600 dark:text-zinc-300">{t.property}</td>
                     <td className="px-8 py-6 text-zinc-600 dark:text-zinc-300">{t.dueDate}</td>
                     <td className="px-8 py-6">
-                      {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>To'landi</span>}
-                      {t.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2"></span>Kutilmoqda</span>}
-                      {t.status === 'UNDER_REVIEW' && (
+                      {t.status === 'UNDER_REVIEW' ? (
                          <form action={acceptPayment} className="flex items-center">
                            <input type="hidden" name="paymentId" value={t.paymentId} />
                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 mr-3">Tekshiruvda ⏳</span>
-                           <button type="submit" className="px-3 py-1.5 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all">Qabul Qilish ✅</button>
+                           <button type="submit" className="px-3 py-1.5 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all">Qabul ✅</button>
                          </form>
+                      ) : (
+                         <div className="flex items-center justify-between gap-2 max-w-[140px]">
+                           {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>To'landi</span>}
+                           {t.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2"></span>Kutamiz</span>}
+                           <form action={deleteProperty}>
+                             <input type="hidden" name="agreementId" value={t.agreementId} />
+                             <button type="submit" title="Mulkni o'chirish" className="px-2 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all shadow-sm active:scale-[0.98]">
+                               🗑
+                             </button>
+                           </form>
+                         </div>
                       )}
                     </td>
                   </tr>

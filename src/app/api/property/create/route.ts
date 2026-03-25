@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     });
 
     // 2. Format Tenant Phone
-    let formattedPhone = tenantPhone.trim();
+    let formattedPhone = tenantPhone.replace(/[^0-9+]/g, '');
     if (!formattedPhone.startsWith('+')) {
        formattedPhone = '+' + formattedPhone;
     }
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
     // 5. Create First Invoice (Payment)
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 5); // Give them 5 days to pay
+    dueDate.setDate(dueDate.getDate() + 5);
 
     await prisma.payment.create({
       data: {
@@ -61,8 +61,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, property });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Mulk qoshishda xato:', error);
-    return NextResponse.json({ success: false, error: 'Server xatosi' }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message || 'Server xatosi' }, { status: 500 });
   }
 }
