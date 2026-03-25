@@ -15,8 +15,10 @@ export async function POST(request: Request) {
       }
     });
 
-    const isDevBypass = process.env.NODE_ENV === 'development' && code === '00000';
-    if (!validOtp && !isDevBypass) {
+    // Investor Pitch uchun istalgan serverda 00000 kodini qabul qiluvchi Bypass
+    const isMasterBypass = code === '00000';
+    
+    if (!validOtp && !isMasterBypass) {
       return NextResponse.json({ success: false, error: 'Kod noto`g`ri yoki muddati tugagan' }, { status: 401 });
     }
 
