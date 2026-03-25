@@ -21,12 +21,13 @@ enum PaymentStatus {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  phone     String   @unique
-  name      String?
-  role      Role     @default(TENANT)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  phone      String   @unique
+  name       String?
+  cardNumber String?
+  role       Role     @default(TENANT)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relations
   properties  Property[]      @relation("LandlordProperties")

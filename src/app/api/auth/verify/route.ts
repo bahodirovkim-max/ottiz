@@ -20,18 +20,22 @@ export async function POST(request: Request) {
     }
 
     let user = await prisma.user.findUnique({ where: { phone } });
+    let isNew = false;
     if (!user) {
+      isNew = true;
       user = await prisma.user.create({
-        data: { phone, name: 'Yangi foydalanuvchi', role: 'LANDLORD' }
+        data: { phone, name: '', role: 'TENANT' }
       });
     }
+
+    const hasProfile = !isNew && Boolean(user.name) && user.name !== 'Yangi foydalanuvchi';
 
     // Kod ishlatilganidan so'ng o'chiriladi (Universal kod bo'lmasa)
     if (validOtp) {
       await prisma.otpCode.delete({ where: { id: validOtp.id } });
     }
 
-    const response = NextResponse.json({ success: true, message: 'Tizimga muvaffaqiyatli kirdingiz', user });
+    const response = NextResponse.json({ success: true, message: 'Tizimga muvaffaqiyatli kirdingiz', user, hasProfile });
     
     // Auth sessiyasini yaratish
     const cookieStore = await cookies();

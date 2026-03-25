@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -52,14 +53,24 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-[#0a0a0a] p-4 sm:p-8 font-sans transition-colors duration-300">
-      <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Salom, {user.name}</h1>
-          <p className="text-sm mt-1 text-zinc-500 dark:text-zinc-400">Asosiy panel va joriy oylik holat</p>
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+        <div className="flex items-center justify-between w-full sm:w-auto">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Salom, {user.name}</h1>
+            <p className="text-sm mt-1 text-zinc-500 dark:text-zinc-400">Asosiy panel va joriy oylik holat</p>
+          </div>
+          <Link href="/uz/profile" className="sm:hidden w-12 h-12 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-xl shadow-sm border border-zinc-200 dark:border-zinc-700">
+            👤
+          </Link>
         </div>
-        <button className="bg-black text-white dark:bg-white dark:text-black px-5 py-3 rounded-2xl text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98] shadow-sm">
-          + Yangi mulkni qo'shish
-        </button>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Link href="/uz/profile" className="hidden sm:flex px-5 py-3.5 rounded-2xl text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-800 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 transition-all shadow-sm active:scale-[0.98]">
+            Profil sozlamalari
+          </Link>
+          <button className="flex-1 sm:flex-none justify-center flex bg-black text-white dark:bg-white dark:text-black px-5 py-3.5 rounded-2xl text-sm font-bold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all active:scale-[0.98] shadow-sm">
+            + Yangi mulk
+          </button>
+        </div>
       </header>
 
       {/* Stats Cards */}

@@ -43,7 +43,11 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.success) {
-        router.push('/uz/dashboard');
+        if (data.hasProfile) {
+          router.push('/uz/dashboard');
+        } else {
+          router.push('/uz/profile/setup');
+        }
         router.refresh();
       } else {
         setError(data.error || 'Noto`g`ri kod');
