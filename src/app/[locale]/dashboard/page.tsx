@@ -7,8 +7,10 @@ import { ConfirmButton } from '@/components/ConfirmButton';
 import { DashboardChart } from '@/components/DashboardChart';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { getTranslations } from 'next-intl/server';
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
+  const t = await getTranslations('Dashboard');
   const { view } = await searchParams;
   const cookieStore = await cookies();
   const token = cookieStore.get('auth-token')?.value;
@@ -382,8 +384,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Salom, {user.name || user.phone}</h1>
-            <p className="text-sm mt-1 text-zinc-500 dark:text-zinc-400">Ijara to'lovlari markaziga xush kelibsiz</p>
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">{t('greeting', { name: user.name || user.phone })}</h1>
+            <p className="text-sm mt-1 text-zinc-500 dark:text-zinc-400">{t('welcomeSubtitle')}</p>
           </div>
           <a href="/uz/profile" className="sm:hidden w-12 h-12 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shadow-sm border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">
             <User className="w-5 h-5" />
@@ -395,13 +397,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
              <LanguageToggle />
           </div>
           <a href="/uz/history" className="hidden sm:flex items-center px-5 py-3.5 rounded-full text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
-            <Receipt className="w-4 h-4 mr-2 text-zinc-500" /> Tarix
+            <Receipt className="w-4 h-4 mr-2 text-zinc-500" /> {t('historyBtn')}
           </a>
           <a href="/uz/profile" className="hidden sm:flex items-center px-5 py-3.5 rounded-full text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
-            <User className="w-4 h-4 mr-2 text-zinc-500" /> Profil
+            <User className="w-4 h-4 mr-2 text-zinc-500" /> {t('profileBtn')}
           </a>
           <a href="/uz/property/new" className="flex-1 sm:flex-none justify-center items-center flex bg-black text-white dark:bg-white dark:text-black px-6 py-3.5 rounded-full text-sm font-bold hover:scale-105 transition-transform shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] dark:shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] whitespace-nowrap">
-            <Plus className="w-4 h-4 mr-1.5" /> Yangi mulk
+            <Plus className="w-4 h-4 mr-1.5" /> {t('newPropertyBtn')}
           </a>
         </div>
       </header>
@@ -410,10 +412,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       {showTabs && (
         <div className="flex bg-zinc-200/60 dark:bg-zinc-800/60 p-1.5 rounded-2xl mb-10 max-w-sm mx-auto sm:mx-0 backdrop-blur-md">
            <a href="?view=tenant" className={`flex-1 flex items-center justify-center py-3 rounded-xl text-sm font-bold transition-all ${currentView === 'tenant' ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
-             <Key className={`w-4 h-4 mr-2 ${currentView === 'tenant' ? 'text-black dark:text-white' : 'text-zinc-400'}`} /> Ijarachi
+             <Key className={`w-4 h-4 mr-2 ${currentView === 'tenant' ? 'text-black dark:text-white' : 'text-zinc-400'}`} /> {t('tabTenant')}
            </a>
            <a href="?view=landlord" className={`flex-1 flex items-center justify-center py-3 rounded-xl text-sm font-bold transition-all ${currentView === 'landlord' ? 'bg-white dark:bg-zinc-700 text-black dark:text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
-             <Building className={`w-4 h-4 mr-2 ${currentView === 'landlord' ? 'text-black dark:text-white' : 'text-zinc-400'}`} /> Uy Egasi
+             <Building className={`w-4 h-4 mr-2 ${currentView === 'landlord' ? 'text-black dark:text-white' : 'text-zinc-400'}`} /> {t('tabLandlord')}
            </a>
         </div>
       )}
@@ -425,7 +427,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
                  <Key className="w-4 h-4 text-indigo-500" />
                </div>
-               Ijaraga olgan uylarim
+               {t('tenantProperties')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {rentedAgreements.map((agr: any) => {
@@ -438,17 +440,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                          <h3 className="font-bold text-lg text-zinc-900 dark:text-white flex items-center gap-2">
                            {agr.property.name}
                          </h3>
-                         {agr.status === 'PENDING' && <span className="bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/20 animate-pulse">Yangi so'rov</span>}
-                         {agr.status === 'ACTIVE' && <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:ring-emerald-500/20">Faol mulk</span>}
+                         {agr.status === 'PENDING' && <span className="bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/20 animate-pulse">{t('statusNew')}</span>}
+                         {agr.status === 'ACTIVE' && <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:ring-emerald-500/20">{t('statusActive')}</span>}
                        </div>
                        
                        <div className="space-y-3 mb-8">
                           <p className="text-sm text-zinc-500 flex justify-between items-center border-b border-zinc-50 dark:border-zinc-800/50 pb-2">
-                             <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Egasi:</span> 
+                             <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> {t('ownerPrefix')}</span> 
                              <span className="font-semibold text-zinc-900 dark:text-white px-2 py-1 bg-zinc-50 dark:bg-zinc-800 rounded-md">{agr.property.landlord.name || agr.property.landlord.phone}</span>
                           </p>
                           <p className="text-sm text-zinc-500 flex justify-between items-center">
-                             <span className="flex items-center gap-1.5"><Receipt className="w-3.5 h-3.5" /> Ijara normasi:</span> 
+                             <span className="flex items-center gap-1.5"><Receipt className="w-3.5 h-3.5" /> {t('rentAmount')}</span> 
                              <span className="font-bold text-zinc-900 dark:text-white">{agr.monthlyAmount.toLocaleString()} UZS</span>
                           </p>
                        </div>
@@ -459,7 +461,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                          <form action={rejectRentAgreement} className="flex-1">
                            <input type="hidden" name="agreementId" value={agr.id} />
                            <button className="w-full flex items-center justify-center py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-2xl font-bold transition-colors">
-                             Rad etish
+                             {t('rejectBtn')}
                            </button>
                          </form>
                          <form action={confirmRentAgreement} className="flex-1">
@@ -487,7 +489,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                               <button type="submit" className="flex flex-col items-center justify-center w-full py-4.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-400 rounded-2xl font-bold border border-emerald-100 dark:border-emerald-500/20 shadow-sm transition-all text-sm group active:scale-[0.98]">
                                 Barcha ochiq qarzlar to'langan
                                 <span className="text-xs font-bold opacity-90 flex items-center gap-1.5 mt-1.5 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
-                                   <FastForward className="w-3.5 h-3.5" /> Oldindan to'lov (Keyingi oy qarzini ochish)
+                                   <FastForward className="w-3.5 h-3.5" /> {t('advanceBtn')}
                                 </span>
                               </button>
                            </form>
@@ -509,13 +511,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
              <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
                <Building className="w-4 h-4 text-emerald-500" />
              </div>
-             Ijaraga berilgan mulklarim
+             {t('landlordProperties')}
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 hover:shadow-md transition-all relative overflow-hidden">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
-              <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-2"><Clock className="w-4 h-4" /> Kutilayotgan to'lovlar</h3>
+              <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-2"><Clock className="w-4 h-4" /> {t('pendingPaymentsBox')}</h3>
               <p className="text-3xl sm:text-4xl font-extrabold mt-4 text-zinc-900 dark:text-white tracking-tight">
                 {upcomingTotal.toLocaleString()} <span className="text-xl text-zinc-400 font-medium">UZS</span>
               </p>
@@ -528,7 +530,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 hover:shadow-md transition-all relative overflow-hidden">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
-              <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-2"><Receipt className="w-4 h-4" /> Joriy oydagi tushumlar</h3>
+              <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-2"><Receipt className="w-4 h-4" /> {t('currentMonthIncomeBox')}</h3>
               <p className="text-3xl sm:text-4xl font-extrabold mt-4 text-zinc-900 dark:text-white tracking-tight">
                 {receivedTotal.toLocaleString()} <span className="text-xl text-zinc-400 font-medium">UZS</span>
               </p>
@@ -538,14 +540,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
             <div className="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 relative overflow-hidden">
                <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2 mb-6 uppercase tracking-wider">
-                 <ChartBar className="w-4 h-4 text-[#2AABEE]" /> Yillik Daromadlar Grafigi
+                 <ChartBar className="w-4 h-4 text-[#2AABEE]" /> {t('yearlyIncomeChart')}
                </h3>
                <DashboardChart data={chartData} />
             </div>
 
             <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 relative overflow-hidden flex flex-col">
                <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2 mb-6 uppercase tracking-wider">
-                 <Activity className="w-4 h-4 text-emerald-500" /> So'nggi Amaliyotlar
+                 <Activity className="w-4 h-4 text-emerald-500" /> {t('recentActivities')}
                </h3>
                <div className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                   {recentActivities.length > 0 ? recentActivities.map((act, i) => (
@@ -558,7 +560,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                       </div>
                     </div>
                   )) : (
-                    <p className="text-sm text-zinc-500 text-center mt-10">Hech qanday harakat topilmadi</p>
+                    <p className="text-sm text-zinc-500 text-center mt-10">{t('noActions')}</p>
                   )}
                </div>
             </div>
@@ -570,17 +572,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                  <div className="w-16 h-16 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-4">
                    <FileSearch className="w-8 h-8" />
                  </div>
-                 <p className="text-zinc-500 font-medium">Hali hech qanday aktiv kvitansiya mavjud emas.</p>
+                 <p className="text-zinc-500 font-medium">{t('noActiveInvoices')}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead className="bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-500 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-800">
                     <tr>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Mulk & Turi</th>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Ijarachi</th>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Summa (UXS)</th>
-                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Holati / Amallar</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tablePropType')}</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tableTenant')}</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tableAmount')}</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tableStatus')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
@@ -591,12 +593,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                               {t.property}
                            </p>
                            <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded shadow-sm inline-block">{t.title}</p>
-                           <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">Muddat: {t.dueDate}</p>
+                           <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">{t('tableDue')} {t.dueDate}</p>
                            {t.totalMonths && t.agreementStatus !== 'PENDING' && (
                               <div className="mt-4 w-48 bg-zinc-50 dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-100 dark:border-zinc-800/60">
                                  <div className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wider">
-                                   <span>{t.totalMonths} oylik shartnoma</span>
-                                   <span className="text-[#2AABEE]">{t.paidMonths} oy to'landi</span>
+                                   <span>{t.totalMonths} {t('monthContract')}</span>
+                                   <span className="text-[#2AABEE]">{t.paidMonths} {t('monthsPaid')}</span>
                                  </div>
                                  <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1 overflow-hidden">
                                    <div className="bg-[#2AABEE] h-1 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.round((t.paidMonths / t.totalMonths) * 100))}%` }}></div>
@@ -623,7 +625,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                                <span className="inline-flex items-center px-3 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-sm border border-zinc-200 dark:border-zinc-700">Tasdiq kutilmoqda <Clock className="w-3.5 h-3.5 ml-2" /></span>
                                <form action={deletePendingAgreement}>
                                   <input type="hidden" name="agreementId" value={t.agreementId} />
-                                  <ConfirmButton text="Ushbu so'rovni butunlay bekor qilib o'chirib tashlamoqchimisiz?" title="O'chirish (Bekor qilish)" className="flex items-center justify-center p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl transition-all shadow-sm">
+                                  <ConfirmButton text="Ushbu so'rovni butunlay bekor qilib o'chirib tashlamoqchimisiz?" title="O'chirish ({t('btnCancel')})" className="flex items-center justify-center p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl transition-all shadow-sm">
                                     <Trash2 className="w-4 h-4" />
                                   </ConfirmButton>
                                </form>
@@ -636,8 +638,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                               <div className="flex gap-2">
                                  <form action={rejectPayment}>
                                    <input type="hidden" name="paymentId" value={t.paymentId} />
-                                   <button type="submit" title="To'lov tushmadi (Rad etish)" className="flex items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl text-xs font-bold transition-all shadow-sm">
-                                     Rad etish <XCircle className="w-3.5 h-3.5 ml-1" />
+                                   <button type="submit" title="To'lov tushmadi ({t('rejectBtn')})" className="flex items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl text-xs font-bold transition-all shadow-sm">
+                                     {t('rejectBtn')} <XCircle className="w-3.5 h-3.5 ml-1" />
                                    </button>
                                  </form>
                                  <form action={acceptPayment}>
@@ -660,7 +662,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                                 {t.paymentType === 'RENT' && (
                                    <form action={endAgreement}>
                                      <input type="hidden" name="agreementId" value={t.agreementId} />
-                                     <ConfirmButton text="Rostdan ham ijara shartnomasini yakunlab arxivlamoqchimisiz? Bu jarayon orqaga qaytarilmaydi!" title="Shartnomani yakunlash (Arxiv)" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
+                                     <ConfirmButton text="Rostdan ham ijara shartnomasini yakunlab arxivlamoqchimisiz? Bu jarayon orqaga qaytarilmaydi!" title="{t('btnEndContract')} (Arxiv)" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
                                        <X className="w-4 h-4" />
                                      </ConfirmButton>
                                    </form>
