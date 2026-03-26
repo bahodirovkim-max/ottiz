@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight, Trash2, ChartBar, Activity } from 'lucide-react';
+import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight, Trash2, ChartBar, Activity, CalendarDays, FastForward } from 'lucide-react';
 import { ConfirmButton } from '@/components/ConfirmButton';
 import { DashboardChart } from '@/components/DashboardChart';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -284,6 +284,41 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   }
 
   // TENANT SERVER ACTIONS
+  async function generateAdvancePayment(formData: FormData) {
+    'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
+    const agreementId = formData.get('agreementId') as string;
+    if (!sessionId || !agreementId) return;
+
+    const agreement = await prisma.rentAgreement.findUnique({
+      where: { id: agreementId },
+      include: { payments: { where: { paymentType: 'RENT' }, orderBy: { dueDate: 'desc' }, take: 1 } }
+    });
+    
+    if (agreement && agreement.tenantId === sessionId && agreement.status === 'ACTIVE') {
+       let nextDueDate = new Date();
+       if (agreement.payments && agreement.payments.length > 0) {
+          nextDueDate = new Date(agreement.payments[0].dueDate);
+          nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+       } else {
+          nextDueDate.setDate(agreement.paymentDay || 1);
+       }
+       
+       await prisma.payment.create({
+         data: {
+           agreementId: agreement.id,
+           amount: agreement.monthlyAmount,
+           dueDate: nextDueDate,
+           status: 'PENDING',
+           paymentType: 'RENT',
+           title: 'Oylik Ijara (Oldindan)'
+         }
+       });
+       revalidatePath('/uz/dashboard');
+    }
+  }
+
   async function confirmRentAgreement(formData: FormData) {
     'use server';
     const cookieStore = await cookies();
@@ -447,10 +482,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                              </a>
                            ))
                          ) : (
-                           <button disabled className="flex flex-col items-center justify-center w-full py-4 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-2xl font-bold border border-emerald-100 dark:border-emerald-500/20 shadow-sm opacity-90 cursor-not-allowed text-sm">
-                             Hozircha ochiq qarz yo'q
-                             <span className="text-xs font-medium opacity-80 flex items-center gap-1 mt-0.5"><CheckCircle className="w-3.5 h-3.5" /> Barchasi to'langan</span>
-                           </button>
+                           <form action={generateAdvancePayment} className="w-full">
+                              <input type="hidden" name="agreementId" value={agr.id} />
+                              <button type="submit" className="flex flex-col items-center justify-center w-full py-4.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-400 rounded-2xl font-bold border border-emerald-100 dark:border-emerald-500/20 shadow-sm transition-all text-sm group active:scale-[0.98]">
+                                Barcha ochiq qarzlar to'langan
+                                <span className="text-xs font-bold opacity-90 flex items-center gap-1.5 mt-1.5 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">
+                                   <FastForward className="w-3.5 h-3.5" /> Oldindan to'lov (Keyingi oy qarzini ochish)
+                                </span>
+                              </button>
+                           </form>
                          )}
                        </div>
                      )}
