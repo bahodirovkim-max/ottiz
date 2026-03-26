@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const token = cookieStore.get('auth-token')?.value;
     if (!token) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    const { name, price, tenantPhone, paymentDay, deposit, discountAmount } = await req.json();
+    const { name, price, tenantPhone, paymentDay, deposit, discountAmount, durationMonths } = await req.json();
 
     if (!name || !price || !tenantPhone) {
       return NextResponse.json({ success: false, error: 'Barcha maydonlarni to`ldirish shart!' }, { status: 400 });
@@ -48,7 +48,8 @@ export async function POST(req: Request) {
         isActive: false,
         paymentDay: parseInt(paymentDay) || 1,
         deposit: deposit ? parseFloat(deposit) : null,
-        discountAmount: discountAmount ? parseFloat(discountAmount) : null
+        discountAmount: discountAmount ? parseFloat(discountAmount) : null,
+        durationMonths: parseInt(durationMonths) || 12
       }
     });
 

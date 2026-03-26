@@ -14,7 +14,8 @@ export default function NewPropertyPage() {
     tenantPhone: '+998',
     paymentDay: '1',
     deposit: '',
-    discountAmount: ''
+    discountAmount: '',
+    durationMonths: '12'
   });
 
   const handleNumberInput = (field: string, value: string) => {
@@ -110,18 +111,39 @@ export default function NewPropertyPage() {
           </div>
 
           <div className="pt-6 border-t border-zinc-100 dark:border-zinc-800 space-y-6">
-             <div>
-                <label className="flex items-center gap-2 text-sm font-bold text-zinc-900 dark:text-zinc-300 mb-3 uppercase tracking-wider">
-                  <CalendarCheck className="w-4 h-4 text-zinc-400" /> To'lov sanasi (Oyning kuni)
-                </label>
-                <input 
-                   type="number" 
-                   min="1" max="31"
-                   required
-                   value={formData.paymentDay}
-                   onChange={(e) => setFormData({...formData, paymentDay: e.target.value})}
-                   className="w-full rounded-2xl border-0 py-4 px-5 text-zinc-900 font-bold shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-[#2AABEE] bg-zinc-50 dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all text-lg"
-                />
+             <div className="flex flex-col sm:flex-row gap-6">
+                <div className="flex-1">
+                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-900 dark:text-zinc-300 mb-3 uppercase tracking-wider">
+                     <CalendarCheck className="w-4 h-4 text-zinc-400" /> Necha oyga?
+                   </label>
+                   <div className="relative">
+                      <input 
+                         type="number" 
+                         min="1" max="120"
+                         required
+                         value={formData.durationMonths}
+                         onChange={(e) => setFormData({...formData, durationMonths: e.target.value})}
+                         className="w-full rounded-2xl border-0 py-4 px-5 pr-12 text-zinc-900 font-bold shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-[#2AABEE] bg-zinc-50 dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all text-lg"
+                      />
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">oy</span>
+                   </div>
+                </div>
+                <div className="flex-1">
+                   <label className="flex items-center gap-2 text-sm font-bold text-zinc-900 dark:text-zinc-300 mb-3 uppercase tracking-wider">
+                     <CalendarCheck className="w-4 h-4 text-zinc-400" /> To'lov sanasi
+                   </label>
+                   <div className="relative">
+                      <input 
+                         type="number" 
+                         min="1" max="31"
+                         required
+                         value={formData.paymentDay}
+                         onChange={(e) => setFormData({...formData, paymentDay: e.target.value})}
+                         className="w-full rounded-2xl border-0 py-4 px-5 pr-14 text-zinc-900 font-bold shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-[#2AABEE] bg-zinc-50 dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all text-lg"
+                      />
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">sana</span>
+                   </div>
+                </div>
              </div>
              
              <div className="flex flex-col sm:flex-row gap-6">

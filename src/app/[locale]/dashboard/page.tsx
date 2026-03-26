@@ -48,6 +48,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   
   allAgreements.forEach((agreement: any) => {
       if (agreement.status === 'REJECTED' || agreement.status === 'ENDED') return;
+      
+      const aTotalMonths = agreement.durationMonths || 12;
+      const aPaidMonths = agreement.payments.filter((xp: any) => xp.paymentType === 'RENT' && xp.status === 'PAID').length;
 
       agreement.payments.forEach((p: any) => {
          const dueDateObj = new Date(p.dueDate);
@@ -81,7 +84,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 dueDate: p.dueDate.toLocaleDateString(),
                 rawDueDate: p.dueDate,
                 status: p.status,
-                agreementStatus: agreement.status
+                agreementStatus: agreement.status,
+                totalMonths: aTotalMonths,
+                paidMonths: aPaidMonths
              });
          }
       });
@@ -100,7 +105,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             dueDate: 'Kutilmoqda',
             rawDueDate: new Date(8640000000000000), 
             status: 'AGREEMENT_PENDING',
-            agreementStatus: agreement.status
+            agreementStatus: agreement.status,
+            totalMonths: aTotalMonths,
+            paidMonths: aPaidMonths
          });
       }
   });
@@ -545,8 +552,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                            </p>
                            <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded shadow-sm inline-block">{t.title}</p>
                            <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">Muddat: {t.dueDate}</p>
+                           {t.totalMonths && t.agreementStatus !== 'PENDING' && (
+                              <div className="mt-4 w-48 bg-zinc-50 dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-100 dark:border-zinc-800/60">
+                                 <div className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wider">
+                                   <span>{t.totalMonths} oylik shartnoma</span>
+                                   <span className="text-[#2AABEE]">{t.paidMonths} oy to'landi</span>
+                                 </div>
+                                 <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1 overflow-hidden">
+                                   <div className="bg-[#2AABEE] h-1 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.round((t.paidMonths / t.totalMonths) * 100))}%` }}></div>
+                                 </div>
+                              </div>
+                           )}
                         </td>
-                        <td className="px-6 sm:px-8 py-6">
+                        <td className="px-6 sm:px-8 py-6 align-top">
                           <p className="font-bold text-zinc-900 dark:text-white flex flex-col items-start gap-2">
                              {t.name}
                              <span className="flex items-center gap-1 text-[10px] px-2 py-1 bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400 rounded-md font-bold shadow-sm ring-1 ring-yellow-200 dark:ring-yellow-500/20">

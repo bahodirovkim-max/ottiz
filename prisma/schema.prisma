@@ -71,6 +71,7 @@ model RentAgreement {
   paymentDay    Int      @default(1)
   deposit       Float?
   discountAmount Float?
+  durationMonths Int      @default(12)
 
   isActive      Boolean  @default(true)
   status        AgreementStatus @default(PENDING)
