@@ -258,6 +258,24 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     }
   }
 
+  async function deletePayment(formData: FormData) {
+    'use server';
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('auth-token')?.value;
+    const paymentId = formData.get('paymentId') as string;
+    if (!sessionId || !paymentId) return;
+
+    const payment = await prisma.payment.findUnique({
+       where: { id: paymentId },
+       include: { agreement: { include: { property: true } } }
+    });
+    
+    if (payment && payment.agreement.property.landlordId === sessionId && payment.status === 'PENDING' && payment.paymentType !== 'RENT') {
+       await prisma.payment.delete({ where: { id: payment.id } });
+       revalidatePath('/uz/dashboard');
+    }
+  }
+
   // TENANT SERVER ACTIONS
   async function confirmRentAgreement(formData: FormData) {
     'use server';
@@ -586,6 +604,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                                      <input type="hidden" name="agreementId" value={t.agreementId} />
                                      <ConfirmButton text="Rostdan ham ijara shartnomasini yakunlab arxivlamoqchimisiz? Bu jarayon orqaga qaytarilmaydi!" title="Shartnomani yakunlash (Arxiv)" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
                                        <X className="w-4 h-4" />
+                                     </ConfirmButton>
+                                   </form>
+                                )}
+                                {t.paymentType !== 'RENT' && t.status === 'PENDING' && (
+                                   <form action={deletePayment}>
+                                     <input type="hidden" name="paymentId" value={t.paymentId} />
+                                     <ConfirmButton text="Ushbu kiritilgan qarz kvitansiyasini o'chirib tashlamoqchimisiz?" title="Qarzni o'chirish" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
+                                       <Trash2 className="w-4 h-4" />
                                      </ConfirmButton>
                                    </form>
                                 )}
