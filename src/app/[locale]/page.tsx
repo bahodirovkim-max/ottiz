@@ -11,6 +11,9 @@ export default function Home() {
             <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">RentPay</span>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/uz/pitch" className="hidden sm:flex items-center text-sm font-bold text-amber-500 hover:text-amber-600 transition-colors gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 rounded-full ring-1 ring-amber-200 dark:ring-amber-500/20">
+              <span className="animate-bounce">🚀</span> Pitch Deck
+            </Link>
             <Link href="/uz/login" className="hidden sm:block text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors">
               Tizimga kirish
             </Link>
@@ -167,9 +170,14 @@ export default function Home() {
       <footer className="py-24 sm:py-32 px-6 text-center border-t border-zinc-100 dark:border-zinc-900 bg-zinc-50 dark:bg-[#0a0a0a]">
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white mb-6">Investitsion qadam tashlash vaqti keldi.</h2>
         <p className="text-lg text-zinc-500 mb-10 max-w-xl mx-auto">Vercel va PostgreSQL orqali qurilgan MVP holatidagi jonli platformada har qanday stress testlarni o'tkazib ko'rishingiz kafolatlanadi.</p>
-        <Link href="/uz/login" className="inline-flex items-center gap-2 px-10 py-5 bg-black text-white dark:bg-white dark:text-black rounded-full text-lg font-bold hover:scale-105 active:scale-95 transition-transform shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-          Tizimga kirish <span className="text-xl">&rarr;</span>
-        </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+           <Link href="/uz/login" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-5 bg-black text-white dark:bg-white dark:text-black rounded-full text-lg font-bold hover:scale-105 active:scale-95 transition-transform shadow-[0_10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_0_40px_rgba(255,255,255,0.1)]">
+             Tizimga kirish <span className="text-xl">&rarr;</span>
+           </Link>
+           <Link href="/uz/pitch" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-5 bg-amber-400 text-black rounded-full text-lg font-bold hover:scale-105 active:scale-95 transition-transform shadow-[0_10px_40px_rgba(251,191,36,0.2)]">
+             <span className="text-xl">📊</span> Investor Pitch
+           </Link>
+        </div>
         <div className="mt-20 text-zinc-400 font-medium text-xs sm:text-sm">
            © 2026 RentPay SaaS. MFY, Bozor va Halol biznes mantiqlari bilan sug'orilgan platforma.
         </div>
