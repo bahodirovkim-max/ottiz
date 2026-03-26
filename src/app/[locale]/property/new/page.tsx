@@ -17,16 +17,29 @@ export default function NewPropertyPage() {
     discountAmount: ''
   });
 
+  const handleNumberInput = (field: string, value: string) => {
+     const raw = value.replace(/\D/g, '');
+     const formatted = raw ? Number(raw).toLocaleString('en-US') : '';
+     setFormData(prev => ({ ...prev, [field]: formatted }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      const payload = {
+        ...formData,
+        price: formData.price.replace(/,/g, ''),
+        deposit: formData.deposit.replace(/,/g, ''),
+        discountAmount: formData.discountAmount.replace(/,/g, '')
+      };
+
       const res = await fetch('/api/property/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       
@@ -86,11 +99,12 @@ export default function NewPropertyPage() {
                <Banknote className="w-4 h-4 text-zinc-400" /> Oylik Ijara Narxi (UZS)
              </label>
              <input 
-                type="number" 
+                type="text" 
+                inputMode="numeric"
                 required
-                placeholder="4000000"
+                placeholder="4,000,000"
                 value={formData.price}
-                onChange={(e) => setFormData({...formData, price: e.target.value})}
+                onChange={(e) => handleNumberInput('price', e.target.value)}
                 className="w-full rounded-2xl border-0 py-4 px-5 text-zinc-900 font-bold shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-[#2AABEE] bg-zinc-50 dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all placeholder:text-zinc-400 placeholder:font-normal text-lg tracking-wide"
              />
           </div>
@@ -116,10 +130,11 @@ export default function NewPropertyPage() {
                      <ShieldCheck className="w-4 h-4 text-zinc-400" /> Zaklad (Ixtiyoriy)
                    </label>
                    <input 
-                      type="number" 
+                      type="text" 
+                      inputMode="numeric"
                       placeholder="0"
                       value={formData.deposit}
-                      onChange={(e) => setFormData({...formData, deposit: e.target.value})}
+                      onChange={(e) => handleNumberInput('deposit', e.target.value)}
                       className="w-full rounded-2xl border-0 py-4 px-5 text-zinc-900 font-semibold shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-[#2AABEE] bg-zinc-50 dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all placeholder:font-normal"
                    />
                 </div>
@@ -128,10 +143,11 @@ export default function NewPropertyPage() {
                      <Tag className="w-4 h-4 text-zinc-400 dark:text-emerald-500" /> Halol Chegirma
                    </label>
                    <input 
-                      type="number" 
+                      type="text" 
+                      inputMode="numeric"
                       placeholder="0"
                       value={formData.discountAmount}
-                      onChange={(e) => setFormData({...formData, discountAmount: e.target.value})}
+                      onChange={(e) => handleNumberInput('discountAmount', e.target.value)}
                       className="w-full rounded-2xl border-0 py-4 px-5 text-zinc-900 font-semibold shadow-sm ring-1 ring-inset ring-emerald-200 focus:ring-2 focus:ring-inset focus:ring-emerald-500 bg-emerald-50/50 dark:bg-emerald-500/5 dark:text-emerald-400 dark:ring-emerald-500/30 outline-none transition-all placeholder:font-normal text-emerald-700"
                    />
                 </div>

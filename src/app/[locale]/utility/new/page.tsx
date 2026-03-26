@@ -16,6 +16,12 @@ function UtilityForm() {
     dueDate: new Date().toISOString().split('T')[0]
   });
 
+  const handleNumberInput = (value: string) => {
+     const raw = value.replace(/\D/g, '');
+     const formatted = raw ? Number(raw).toLocaleString('en-US') : '';
+     setFormData(prev => ({ ...prev, amount: formatted }));
+  };
+
   if (!agreementId) {
     return <div className="p-10 text-center text-zinc-500 font-bold bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl">Xatolik: Shartnoma ID topilmadi. Ortga qayting.</div>;
   }
@@ -25,10 +31,16 @@ function UtilityForm() {
     setLoading(true); setError('');
 
     try {
+      const payload = {
+        ...formData,
+        amount: formData.amount.replace(/,/g, ''),
+        agreementId
+      };
+
       const res = await fetch('/api/utility/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, agreementId })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
@@ -90,11 +102,12 @@ function UtilityForm() {
                <Receipt className="w-4 h-4 text-zinc-400" /> To'lov miqdori (UZS)
              </label>
              <input 
-                type="number" 
+                type="text" 
+                inputMode="numeric"
                 required
-                placeholder="Misol: 75000"
+                placeholder="Misol: 75,000"
                 value={formData.amount}
-                onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                onChange={(e) => handleNumberInput(e.target.value)}
                 className="w-full rounded-2xl border-0 py-4 px-5 text-zinc-900 font-extrabold shadow-sm ring-1 ring-inset ring-zinc-200 focus:ring-2 focus:ring-inset focus:ring-amber-400 bg-zinc-50 dark:bg-zinc-800/50 dark:text-white dark:ring-zinc-700 outline-none transition-all placeholder:text-zinc-400 placeholder:font-normal tracking-wide text-xl"
              />
           </div>
