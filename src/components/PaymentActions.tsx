@@ -43,11 +43,11 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
             </li>
             <li className="flex items-start gap-2.5">
                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-200 dark:bg-sky-500/30 flex items-center justify-center text-sky-800 dark:text-sky-200 text-xs">2</span> 
-               Telefoningizdan Click, Payme yoki Uzum ilovasiga kirib shu kartaga pul o'tkazing.
+               Kerakli to'lov ilovasini bosing (Click, Payme, Uzum) yoki qo'lda oching va shu kartaga pul o'tkazing.
             </li>
             <li className="flex items-start gap-2.5">
                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-200 dark:bg-sky-500/30 flex items-center justify-center text-sky-800 dark:text-sky-200 text-xs">3</span> 
-               Pul muvaffaqiyatli tushgach, ushbu sahifaga qaytib markaziy ko'k tugmani bosing.
+               Pul muvaffaqiyatli tushgach, sahifaga qaytib eng pasdagi "Tasdiqlash" ko'k tugmasini bosing.
             </li>
          </ol>
       </div>
@@ -70,6 +70,31 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
         </div>
       </div>
 
+      {/* App Launchers */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+         <button 
+           onClick={() => { copyToClipboard(); window.location.href = 'clickuz://'; }}
+           className="flex flex-col items-center justify-center gap-2 py-3 bg-[#00A1E6]/10 hover:bg-[#00A1E6]/20 border border-[#00A1E6]/20 rounded-2xl transition-all active:scale-95"
+         >
+           <div className="w-8 h-8 rounded-full bg-[#00A1E6] flex items-center justify-center text-white font-bold text-xs">C</div>
+           <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">Click</span>
+         </button>
+         <button 
+           onClick={() => { copyToClipboard(); window.location.href = 'payme://'; }}
+           className="flex flex-col items-center justify-center gap-2 py-3 bg-[#42EAA9]/10 hover:bg-[#42EAA9]/20 border border-[#42EAA9]/20 rounded-2xl transition-all active:scale-95"
+         >
+           <div className="w-8 h-8 rounded-full bg-[#42EAA9] flex items-center justify-center text-black font-bold text-xs">P</div>
+           <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">Payme</span>
+         </button>
+         <button 
+           onClick={() => { copyToClipboard(); window.location.href = 'uzum://'; }}
+           className="flex flex-col items-center justify-center gap-2 py-3 bg-[#7214FF]/10 hover:bg-[#7214FF]/20 border border-[#7214FF]/20 rounded-2xl transition-all active:scale-95"
+         >
+           <div className="w-8 h-8 rounded-full bg-[#7214FF] flex items-center justify-center text-white font-bold text-xs">U</div>
+           <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">Uzum</span>
+         </button>
+      </div>
+
       <button 
         disabled={loading || !cardNumber}
         onClick={handleReview}
@@ -78,7 +103,7 @@ export function PaymentActions({ paymentId, cardNumber }: { paymentId: string, c
         {loading ? 'Yuborilmoqda...' : <><CheckCircle2 className="w-6 h-6 flex-shrink-0" /> To'lovni qildim, tasdiqlash</>}
       </button>
       
-      <p className="text-sm text-center text-zinc-500 font-bold px-2 leading-relaxed opacity-80 mt-4 flex items-center justify-center gap-2">
+      <p className="text-sm text-center text-zinc-500 font-bold px-2 leading-relaxed opacity-80 flex items-center justify-center gap-2">
          <Send className="w-4 h-4 flex-shrink-0" /> Bosilganda uy egasiga tasdiq jo'natiladi
       </p>
     </div>
