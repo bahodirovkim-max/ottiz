@@ -525,16 +525,30 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
 
       {/* --- LANDLORD SECTION --- */}
-      {currentView === 'landlord' && allAgreements.length > 0 && (
+      {currentView === 'landlord' && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 px-1 flex items-center gap-2">
-             <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
-               <Building className="w-4 h-4 text-emerald-500" />
-             </div>
-             {t('landlordProperties')}
-          </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          {user.properties.length === 0 && allAgreements.length === 0 ? (
+              <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center border border-dashed border-zinc-200 dark:border-zinc-800 shadow-sm mt-4">
+                <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 flex items-center justify-center mb-4 text-emerald-500">
+                  <Building className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-2">Sizda ijara obyektlari yo'q</h3>
+                <p className="text-zinc-500 mb-6 max-w-sm text-sm">Ijara to'lovlarini avtomatlashtirish uchun darhol mulkingizni tizimga qo'shing va ijarachilarni taklif qiling.</p>
+                <a href="/uz/property/new" className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-[0_4px_20px_rgba(16,185,129,0.3)] active:scale-95">
+                  Yangi Mulk Qo'shish
+                </a>
+              </div>
+          ) : (
+           <>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 px-1 flex items-center gap-2">
+               <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
+                 <Building className="w-4 h-4 text-emerald-500" />
+               </div>
+               {t('landlordProperties')}
+            </h2>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
             <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 shadow-sm border border-zinc-100 dark:border-zinc-800 hover:shadow-md transition-all relative overflow-hidden">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
               <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 flex items-center gap-2"><Clock className="w-4 h-4" /> {t('pendingPaymentsBox')}</h3>
@@ -706,10 +720,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               </div>
             )}
           </div>
+           </>
+          )}
         </div>
       )}
       
-      {allAgreements.length === 0 && rentedAgreements.length === 0 && (
+      {allAgreements.length === 0 && rentedAgreements.length === 0 && currentView === 'landlord' && (
          <div className="flex flex-col items-center justify-center py-24 text-center animate-in fade-in duration-700">
             <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-300 dark:text-zinc-600 mb-8 border border-zinc-200 dark:border-zinc-700 shadow-sm">
                <Receipt className="w-10 h-10" />
