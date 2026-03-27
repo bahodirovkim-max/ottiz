@@ -6,8 +6,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
     
-    if (process.env.CRON_SECRET && token !== process.env.CRON_SECRET) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // SECURITY FIX: Agar serverda CRON_SECRET o'rnatilmagan bo'lsa yoki token xato bo'lsa, bypass bo'lishini oldini olamiz
+    if (!process.env.CRON_SECRET || token !== process.env.CRON_SECRET) {
+      return NextResponse.json({ success: false, error: 'Unauthorized: CRON_SECRET noto`g`ri yoki yo`q' }, { status: 401 });
     }
 
     const today = new Date();
