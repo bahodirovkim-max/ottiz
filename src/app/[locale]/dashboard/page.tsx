@@ -620,45 +620,45 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
-                    {actionablePayments.map((t: any, idx: number) => (
+                    {actionablePayments.map((item: any, idx: number) => (
                       <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
                         <td className="px-6 sm:px-8 py-6">
                            <p className="font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
-                              {t.property}
+                              {item.property}
                            </p>
-                           <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded shadow-sm inline-block">{t.title}</p>
-                           <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">{t('tableDue')} {t.dueDate}</p>
-                           {t.totalMonths && t.agreementStatus !== 'PENDING' && (
+                           <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded shadow-sm inline-block">{item.title}</p>
+                           <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">{t('tableDue')} {item.dueDate}</p>
+                           {item.totalMonths && item.agreementStatus !== 'PENDING' && (
                               <div className="mt-4 w-48 bg-zinc-50 dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-100 dark:border-zinc-800/60">
                                  <div className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wider">
-                                   <span>{t.totalMonths} {t('monthContract')}</span>
-                                   <span className="text-[#2AABEE]">{t.paidMonths} {t('monthsPaid')}</span>
+                                   <span>{item.totalMonths} {t('monthContract')}</span>
+                                   <span className="text-[#2AABEE]">{item.paidMonths} {t('monthsPaid')}</span>
                                  </div>
                                  <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1 overflow-hidden">
-                                   <div className="bg-[#2AABEE] h-1 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.round((t.paidMonths / t.totalMonths) * 100))}%` }}></div>
+                                   <div className="bg-[#2AABEE] h-1 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.round((item.paidMonths / item.totalMonths) * 100))}%` }}></div>
                                  </div>
                               </div>
                            )}
                         </td>
                         <td className="px-6 sm:px-8 py-6 align-top">
                           <p className="font-bold text-zinc-900 dark:text-white flex flex-col items-start gap-2">
-                             {t.name}
+                             {item.name}
                              <span className="flex items-center gap-1 text-[10px] px-2 py-1 bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400 rounded-md font-bold shadow-sm ring-1 ring-yellow-200 dark:ring-yellow-500/20">
-                               <ShieldCheck className="w-3 h-3" /> {t.trustScore}
+                               <ShieldCheck className="w-3 h-3" /> {item.trustScore}
                              </span>
                           </p>
-                          <p className="text-xs text-zinc-400 mt-1 font-medium tracking-wide">{t.phone}</p>
+                          <p className="text-xs text-zinc-400 mt-1 font-medium tracking-wide">{item.phone}</p>
                         </td>
                         <td className="px-6 sm:px-8 py-6">
-                           <p className="text-zinc-900 dark:text-white font-extrabold text-xl tracking-tight">{(t.paidAmount || t.amount)?.toLocaleString()}</p>
-                           {t.paidAmount && <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider mt-1">Chegirma qo'llandi</p>}
+                           <p className="text-zinc-900 dark:text-white font-extrabold text-xl tracking-tight">{(item.paidAmount || item.amount)?.toLocaleString()}</p>
+                           {item.paidAmount && <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider mt-1">Chegirma qo'llandi</p>}
                         </td>
                         <td className="px-6 sm:px-8 py-6">
-                          {t.status === 'AGREEMENT_PENDING' ? (
+                          {item.status === 'AGREEMENT_PENDING' ? (
                              <div className="flex items-center gap-2">
                                <span className="inline-flex items-center px-3 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 shadow-sm border border-zinc-200 dark:border-zinc-700">Tasdiq kutilmoqda <Clock className="w-3.5 h-3.5 ml-2" /></span>
                                <form action={deletePendingAgreement}>
-                                  <input type="hidden" name="agreementId" value={t.agreementId} />
+                                  <input type="hidden" name="agreementId" value={item.agreementId} />
                                   <ConfirmButton text="Ushbu so'rovni butunlay bekor qilib o'chirib tashlamoqchimisiz?" title="O'chirish ({t('btnCancel')})" className="flex items-center justify-center p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl transition-all shadow-sm">
                                     <Trash2 className="w-4 h-4" />
                                   </ConfirmButton>
