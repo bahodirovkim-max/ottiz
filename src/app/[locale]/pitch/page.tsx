@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar, Legend } from 'recharts';
-import { ArrowLeft, Target, TrendingUp, Globe, Wallet, ChevronRight, Activity, ShieldCheck, Zap, XCircle } from 'lucide-react';
+import { ArrowLeft, Target, TrendingUp, Globe, Wallet, ChevronRight, Activity, ShieldCheck, Zap, XCircle, Building } from 'lucide-react';
 
 const revenueData = [
   { year: '2026', mrr: 15 },
@@ -105,7 +105,7 @@ export default function PitchDeck() {
          <div className="absolute inset-0 bg-[#2AABEE]/5 w-full h-full pattern-grid-lg opacity-50 -z-10"></div>
          <div className="max-w-6xl mx-auto">
             <h2 className="text-4xl font-extrabold mb-16 text-center">Pul qanday ishlanadi? <span className="text-amber-400">(Monetizatsiya)</span></h2>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                <div className="bg-zinc-800/40 rounded-[2rem] p-8 border border-zinc-700/50 backdrop-blur-xl">
                   <div className="w-14 h-14 bg-[#2AABEE]/10 rounded-2xl flex items-center justify-center text-[#2AABEE] mb-6"><Target className="w-6 h-6" /></div>
                   <h3 className="text-xl font-bold mb-3">B2C Premium Subscriptions</h3>
@@ -126,11 +126,21 @@ export default function PitchDeck() {
 
                <div className="bg-zinc-800/40 rounded-[2rem] p-8 border border-zinc-700/50 backdrop-blur-xl">
                   <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 mb-6"><Activity className="w-6 h-6" /></div>
-                  <h3 className="text-xl font-bold mb-3">Kommunal & Kvitansiya Xizmatlari</h3>
+                  <h3 className="text-xl font-bold mb-3">Kommunal & API Xizmatlari</h3>
                   <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-                    Ijarachilar to'g'ridan-to'g'ri ijara hisobidan svet, gaz idoralariga pul yuboradi. Billur P2B API (Uztelecom/Hududgaz) yordamida qulaylik komissiyasi.
+                    Svet, gaz idoralariga billur tizimi yordamida to'lov qilinganda vositachilik komissiyasi (Uztelecom/Hududgaz).
                   </p>
-                  <div className="text-2xl font-black text-purple-400">+1.0% <span className="text-sm font-medium text-zinc-500">/usluga</span></div>
+                  <div className="text-2xl font-black text-purple-400">+1.0% <span className="text-sm font-medium text-zinc-500">/xizmat</span></div>
+               </div>
+
+               <div className="bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-[2rem] p-8 border border-amber-500/30 backdrop-blur-xl relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-400 mb-6"><Building className="w-6 h-6" /></div>
+                  <h3 className="text-xl font-bold mb-3 flex items-center gap-2">RentPay Business <span className="px-2 py-0.5 bg-amber-500 text-black text-[10px] uppercase rounded-full tracking-wider">Premium</span></h3>
+                  <p className="text-zinc-300 text-sm leading-relaxed mb-6 font-medium">
+                    (Yandex Arenda analogi). Uy egalari uyni 100% bizning agentlikka ishonib topshiradi. Biz ijarachini topamiz, sug'urta qilamiz va to'lovni kafolatlaymiz. O'ta yuqori marja.
+                  </p>
+                  <div className="text-2xl font-black text-amber-400">7-10% <span className="text-sm font-medium text-zinc-400">/oylik summadan</span></div>
                </div>
             </div>
          </div>
