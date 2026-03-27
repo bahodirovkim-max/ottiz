@@ -47,6 +47,8 @@ export async function POST(req: Request) {
       data: {
          propertyId: property.id,
          tenantId: tenant.id,
+         startDate: new Date(),
+         durationMonths: 12,
          monthlyAmount: parseFloat(monthlyAmount),
          paymentDay: parseInt(paymentDay) || 1,
          status: 'PENDING',
