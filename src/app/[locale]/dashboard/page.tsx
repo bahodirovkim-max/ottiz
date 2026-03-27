@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight, Trash2, ChartBar, Activity, CalendarDays, FastForward } from 'lucide-react';
+import { Building, Key, Plus, User, Receipt, ShieldCheck, Zap, XCircle, CheckCircle, Clock, X, FileSearch, ArrowRight, Trash2, ChartBar, Activity, CalendarDays, FastForward, UserPlus } from 'lucide-react';
 import { ConfirmButton } from '@/components/ConfirmButton';
 import { DashboardChart } from '@/components/DashboardChart';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -402,9 +402,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <a href="/uz/profile" className="hidden sm:flex items-center px-5 py-3.5 rounded-full text-sm font-bold bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
             <User className="w-4 h-4 mr-2 text-zinc-500" /> {t('profileBtn')}
           </a>
-          <a href="/uz/property/new" className="flex-1 sm:flex-none justify-center items-center flex bg-black text-white dark:bg-white dark:text-black px-6 py-3.5 rounded-full text-sm font-bold hover:scale-105 transition-transform shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] dark:shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] whitespace-nowrap">
-            <Plus className="w-4 h-4 mr-1.5" /> {t('newPropertyBtn')}
-          </a>
+          {currentView === 'landlord' ? (
+            <a href={`/${locale}/property/new`} className="flex-1 sm:flex-none justify-center items-center flex bg-black text-white dark:bg-white dark:text-black px-6 py-3.5 rounded-full text-sm font-bold hover:scale-105 transition-transform shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] dark:shadow-[0_4px_14px_0_rgba(255,255,255,0.1)] whitespace-nowrap">
+              <Plus className="w-4 h-4 mr-1.5" /> {t('newPropertyBtn')}
+            </a>
+          ) : (
+            <a href={`/${locale}/invite-landlord`} className="flex-1 sm:flex-none justify-center items-center flex bg-[#2AABEE] text-white px-6 py-3.5 rounded-full text-sm font-bold hover:scale-105 transition-transform shadow-[0_4px_14px_0_rgba(42,171,238,0.3)] whitespace-nowrap">
+              <UserPlus className="w-4 h-4 mr-1.5" /> Uy Egasini Chaqirish
+            </a>
+          )}
         </div>
       </header>
 
@@ -421,7 +427,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       )}
 
       {/* --- TENANT SECTION --- */}
-      {currentView === 'tenant' && rentedAgreements.length > 0 && (
+      {currentView === 'tenant' && (
          <div className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-6 px-1 flex items-center gap-2">
                <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
@@ -429,6 +435,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                </div>
                {t('tenantProperties')}
             </h2>
+            
+            {rentedAgreements.length === 0 ? (
+              <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center border border-dashed border-zinc-200 dark:border-zinc-800 shadow-sm">
+                <div className="w-16 h-16 rounded-3xl bg-[#2AABEE]/10 flex items-center justify-center mb-4 text-[#2AABEE]">
+                  <UserPlus className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-2">Hali ijara shartnomasi qilinmagan</h3>
+                <p className="text-zinc-500 mb-6 max-w-sm text-sm">Uy egangiz tizimga ro'yxatdan o'tmagan bo'lsa, uni shu yerdan taklif qilib barcha to'lovlarni oson nazorat qiling.</p>
+                <a href={`/${locale}/invite-landlord`} className="bg-zinc-900 text-white dark:bg-white dark:text-black px-6 py-3.5 rounded-2xl font-bold text-sm hover:scale-105 transition-transform shadow-xl">
+                  Uy Egasini Taklif Qilish
+                </a>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {rentedAgreements.map((agr: any) => {
                 const pendingPayments = agr.payments.filter((p: any) => p.status === 'PENDING' || p.status === 'UNDER_REVIEW').sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
@@ -499,7 +518,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   </div>
                 )
               })}
-            </div>
+             </div>
+            )}
          </div>
       )}
 

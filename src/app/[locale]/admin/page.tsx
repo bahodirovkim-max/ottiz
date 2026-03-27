@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
     where: { status: 'ACTIVE', isActive: true } 
   });
   
-  const mrr = activeAgreements.reduce((sum, a) => sum + a.monthlyAmount, 0);
+  const mrr = activeAgreements.reduce((sum: number, a: { monthlyAmount: number }) => sum + a.monthlyAmount, 0);
   // Estimate RentPay's commission revenue (e.g., 1%)
   const estimatedRevenue = mrr * 0.01;
 
@@ -106,7 +106,7 @@ export default async function AdminDashboardPage() {
                   <td colSpan={4} className="py-8 text-center text-zinc-500">Hech qanday to'lov yo'q</td>
                 </tr>
               ) : (
-                recentPayments.map((p) => (
+                recentPayments.map((p: any) => (
                   <tr key={p.id} className="border-b border-zinc-50 dark:border-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
                     <td className="py-4 pl-4 font-black">{p.amount.toLocaleString()} UZS</td>
                     <td className="py-4 text-zinc-500">
