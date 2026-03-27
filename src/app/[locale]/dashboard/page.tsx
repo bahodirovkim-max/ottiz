@@ -616,6 +616,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   <thead className="bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-500 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-800">
                     <tr>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tablePropType')}</th>
+                      <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">Muddat / Oy</th>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tableTenant')}</th>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tableAmount')}</th>
                       <th className="px-6 sm:px-8 py-5 font-bold uppercase tracking-wider text-xs">{t('tableStatus')}</th>
@@ -624,32 +625,41 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     {actionablePayments.map((item: any, idx: number) => (
                       <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors">
-                        <td className="px-6 sm:px-8 py-6">
+                        <td className="px-6 sm:px-8 py-6 align-top">
                            <p className="font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
                               {item.property}
                            </p>
                            <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded shadow-sm inline-block">{item.title}</p>
                            <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">{t('tableDue')} {item.dueDate}</p>
-                           {item.totalMonths && item.agreementStatus !== 'PENDING' && (
-                              <div className="mt-4 space-y-2">
-                                 <div className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1 tracking-wider uppercase">
-                                   <span>{item.totalMonths} {t('monthContract')}</span>
-                                   <span className="text-emerald-500 font-extrabold">{item.paidMonths} {t('monthsPaid')}</span>
+                        </td>
+                        <td className="px-6 sm:px-8 py-6 align-top">
+                           {item.totalMonths && item.agreementStatus !== 'PENDING' ? (
+                              <div className="space-y-3">
+                                 <div className="flex items-center gap-2">
+                                   <div className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md text-[9px] font-black text-zinc-500 uppercase tracking-wider">
+                                     {item.totalMonths} Oylik Shartnoma
+                                   </div>
+                                   <div className="px-2 py-1 bg-emerald-50 dark:bg-emerald-500/10 rounded-md text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider border border-emerald-100 dark:border-emerald-500/20 shadow-sm relative overflow-hidden group">
+                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-100/50 dark:via-emerald-500/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                                     {item.paidMonths} Oy To'landi
+                                   </div>
                                  </div>
-                                 <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                                 <div className="flex flex-wrap gap-1.5 max-w-[240px]">
                                    {Array.from({ length: item.totalMonths }).map((_, i) => {
                                       const isPaid = i < item.paidMonths;
                                       const m = new Date(item.startDate || Date.now());
                                       m.setMonth(m.getMonth() + i);
                                       const monthName = m.toLocaleString('uz-UZ', { month: 'short' }).substring(0, 3);
                                       return (
-                                        <div key={i} title={`${i+1}-oy: ${isPaid ? "To'langan" : "Kutilmoqda"}`} className={`flex items-center justify-center w-8 h-8 rounded border border-transparent text-[9px] font-extrabold tracking-wide uppercase transition-all duration-300 ${isPaid ? 'bg-[#00D06C] text-black shadow-[0_4px_10px_rgba(0,208,108,0.2)]' : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-400 dark:text-zinc-500'}`}>
+                                        <div key={i} title={`${i+1}-oy: ${isPaid ? "To'langan" : "Kutilmoqda"}`} className={`flex items-center justify-center w-8 h-8 rounded border border-transparent text-[9px] font-extrabold tracking-wide uppercase transition-all duration-300 ${isPaid ? 'bg-[#00D06C] text-black shadow-[0_4px_10px_rgba(0,208,108,0.2)]' : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700/50 cursor-help'}`}>
                                           {monthName}
                                         </div>
                                       )
                                    })}
                                  </div>
                               </div>
+                           ) : (
+                             <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 italic px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/40 rounded-lg inline-block border border-zinc-100 dark:border-zinc-800">Shartnoma kutilmoqda...</p>
                            )}
                         </td>
                         <td className="px-6 sm:px-8 py-6 align-top">
