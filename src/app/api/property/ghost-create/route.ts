@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       data: {
         name: propertyName,
         address: address || 'Manzil ko`rsatilmagan',
-        monthlyRent: parseFloat(monthlyAmount),
+        price: parseFloat(monthlyAmount),
         landlordId: landlord.id
       }
     });
