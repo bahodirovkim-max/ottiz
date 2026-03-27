@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { Handshake, Moon, Star, Home as HomeIcon, Key, Building, Lightbulb, Wallet, Flame } from 'lucide-react';
 
 export default function Home() {
   const [activeRole, setActiveRole] = useState<'landlord' | 'tenant'>('landlord');
@@ -84,19 +85,25 @@ export default function Home() {
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 sm:p-10 border border-zinc-100 dark:border-zinc-800 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-none hover:border-zinc-200 dark:hover:border-zinc-700 transition-all">
-            <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl mb-6 ring-1 ring-zinc-200 dark:ring-zinc-700">🤝</div>
+            <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl mb-6 ring-1 ring-zinc-200 dark:ring-zinc-700">
+              <Handshake className="w-7 h-7 text-zinc-900 dark:text-zinc-100" />
+            </div>
             <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">0% Komissiya, Toza P2P</h3>
             <p className="text-zinc-500 leading-relaxed text-sm">Biz foydalanuvchi ko'payguncha pullaringizdan foiz ushlab qolmaymiz. Ijarachi kvitansiyada ko'ringan Karta raqamga Paymedan tushiradi va tasdig'ini bosadi.</p>
           </div>
           
           <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 sm:p-10 border border-zinc-100 dark:border-zinc-800 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-none hover:border-zinc-200 dark:hover:border-zinc-700 transition-all">
-            <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl flex items-center justify-center text-2xl mb-6 ring-1 ring-emerald-200 dark:ring-emerald-500/20">🌙</div>
+            <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl flex items-center justify-center text-2xl mb-6 ring-1 ring-emerald-200 dark:ring-emerald-500/20">
+              <Moon className="w-6 h-6 text-emerald-500" />
+            </div>
             <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">Islomiy Halol Mexanika</h3>
             <p className="text-zinc-500 leading-relaxed text-sm">Zarracha "Riba" xavfidan qochish uchun penya umuman yo'q! Uning o'rniga muddatida to'laganga "Chegirma berish" kabi mustahkam motivatsiya tizimi ishlaydi.</p>
           </div>
 
           <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 sm:p-10 border border-zinc-100 dark:border-zinc-800 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-none hover:border-zinc-200 dark:hover:border-zinc-700 transition-all">
-            <div className="w-14 h-14 bg-amber-50 dark:bg-amber-500/10 rounded-2xl flex items-center justify-center text-2xl mb-6 ring-1 ring-amber-200 dark:ring-amber-500/20">⭐</div>
+            <div className="w-14 h-14 bg-amber-50 dark:bg-amber-500/10 rounded-2xl flex items-center justify-center text-2xl mb-6 ring-1 ring-amber-200 dark:ring-amber-500/20">
+              <Star className="w-6 h-6 text-amber-500 fill-amber-500/20" />
+            </div>
             <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">Trust Score (Reyting)</h3>
             <p className="text-zinc-500 leading-relaxed text-sm">Har bir ijara to'lovida firibgarlik yo'qligi va intizomli to'lov qaytarilishini ta'minlash maqsadida xar bir foydalanuvchida 100 balli ishonch yulduzi mavjud.</p>
           </div>
@@ -138,23 +145,25 @@ export default function Home() {
                 <div className="flex gap-2 mb-8 bg-black/60 p-1.5 rounded-2xl border border-zinc-800 w-fit mx-auto relative overflow-hidden backdrop-blur-xl">
                    <div 
                      onClick={() => setActiveRole('landlord')}
-                     className={`px-5 py-2.5 rounded-[14px] text-xs sm:text-sm font-bold cursor-pointer transition-all relative z-10 ${activeRole === 'landlord' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                     className={`flex items-center gap-2 px-5 py-2.5 rounded-[14px] text-xs sm:text-sm font-bold cursor-pointer transition-all relative z-10 ${activeRole === 'landlord' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
                    >
-                     🏠 Uy Egasi sifatida
+                     <HomeIcon className="w-4 h-4" /> Uy Egasi sifatida
                    </div>
                    <div 
                      onClick={() => setActiveRole('tenant')}
-                     className={`px-5 py-2.5 rounded-[14px] text-xs sm:text-sm font-bold cursor-pointer transition-all relative z-10 ${activeRole === 'tenant' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                     className={`flex items-center gap-2 px-5 py-2.5 rounded-[14px] text-xs sm:text-sm font-bold cursor-pointer transition-all relative z-10 ${activeRole === 'tenant' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
                    >
-                     🔑 Ijarachi sifatida
+                     <Key className="w-4 h-4" /> Ijarachi sifatida
                    </div>
                 </div>
                 
-                <div className="space-y-4 relative min-h-[160px]">
-                   <div className={`absolute top-0 left-0 w-full transition-all duration-500 ease-in-out ${activeRole === 'landlord' ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 pointer-events-none'}`}>
+                <div className="space-y-4 relative min-h-[180px]">
+                   <div className={`absolute top-0 left-0 w-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] origin-top ${activeRole === 'landlord' ? 'opacity-100 scale-100 rotate-x-0' : 'opacity-0 scale-95 -rotate-x-12 pointer-events-none'}`}>
                      <div className="bg-zinc-800/60 rounded-2xl border border-zinc-700/50 p-5 flex justify-between items-center group hover:bg-zinc-800 transition-colors mb-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-xl">🏢</div>
+                          <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-xl">
+                            <Building className="w-6 h-6 text-zinc-300" />
+                          </div>
                           <div>
                             <div className="w-24 h-4 bg-zinc-700 rounded-md mb-2 group-hover:bg-zinc-600 transition-colors"></div>
                             <div className="w-32 h-3 bg-zinc-800 rounded-md"></div>
@@ -164,7 +173,9 @@ export default function Home() {
                      </div>
                      <div className="bg-zinc-800/60 rounded-2xl border border-zinc-700/50 p-5 flex justify-between items-center group hover:bg-zinc-800 transition-colors opacity-60">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-xl">💡</div>
+                          <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-xl">
+                            <Lightbulb className="w-6 h-6 text-amber-500/50" />
+                          </div>
                           <div>
                             <div className="w-24 h-4 bg-zinc-700 rounded-md mb-2"></div>
                             <div className="w-32 h-3 bg-zinc-800 rounded-md"></div>
@@ -174,10 +185,12 @@ export default function Home() {
                      </div>
                    </div>
 
-                   <div className={`absolute top-0 left-0 w-full transition-all duration-500 ease-in-out ${activeRole === 'tenant' ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'}`}>
+                   <div className={`absolute top-0 left-0 w-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] origin-top ${activeRole === 'tenant' ? 'opacity-100 scale-100 rotate-x-0' : 'opacity-0 scale-95 rotate-x-12 pointer-events-none'}`}>
                      <div className="bg-emerald-900/20 rounded-2xl border border-emerald-500/30 p-5 flex justify-between items-center group hover:bg-emerald-900/30 transition-colors mb-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(16,185,129,0.2)]">💵</div>
+                          <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                            <Wallet className="w-6 h-6 text-emerald-400" />
+                          </div>
                           <div>
                             <div className="w-20 h-4 bg-emerald-600/50 rounded-md mb-2"></div>
                             <div className="w-32 h-3 bg-emerald-800/50 rounded-md"></div>
@@ -187,7 +200,9 @@ export default function Home() {
                      </div>
                      <div className="bg-rose-900/10 rounded-2xl border border-rose-500/20 p-5 flex justify-between items-center group hover:bg-rose-900/20 transition-colors opacity-80">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center text-xl">🔥</div>
+                          <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center text-xl">
+                            <Flame className="w-6 h-6 text-rose-500" />
+                          </div>
                           <div>
                             <div className="w-28 h-4 bg-rose-600/30 rounded-md mb-2"></div>
                             <div className="w-20 h-3 bg-rose-800/30 rounded-md"></div>
