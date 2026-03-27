@@ -664,20 +664,20 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                                   </ConfirmButton>
                                </form>
                              </div>
-                          ) : t.status === 'UNDER_REVIEW' ? (
+                          ) : item.status === 'UNDER_REVIEW' ? (
                             <div className="flex flex-col items-start gap-3">
                               <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 dark:from-amber-500/10 dark:to-orange-500/10 dark:text-amber-400 shadow-inner ring-1 ring-amber-200 dark:ring-amber-500/30">
                                 Tekshiruvda <Clock className="w-3.5 h-3.5 ml-2 animate-pulse" />
                               </span>
                               <div className="flex gap-2">
                                  <form action={rejectPayment}>
-                                   <input type="hidden" name="paymentId" value={t.paymentId} />
-                                   <button type="submit" title="To'lov tushmadi ({t('rejectBtn')})" className="flex items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl text-xs font-bold transition-all shadow-sm">
+                                   <input type="hidden" name="paymentId" value={item.paymentId} />
+                                   <button type="submit" title={`To'lov tushmadi (${t('rejectBtn')})`} className="flex items-center px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 rounded-xl text-xs font-bold transition-all shadow-sm">
                                      {t('rejectBtn')} <XCircle className="w-3.5 h-3.5 ml-1" />
                                    </button>
                                  </form>
                                  <form action={acceptPayment}>
-                                   <input type="hidden" name="paymentId" value={t.paymentId} />
+                                   <input type="hidden" name="paymentId" value={item.paymentId} />
                                    <button type="submit" title="Pul kelib tushdi (Tasdiqlash)" className="flex items-center px-4 py-2 bg-[#2AABEE] text-white text-xs font-bold rounded-xl hover:bg-[#1f8fc9] transition-all shadow-md shadow-[#2AABEE]/20 hover:shadow-lg">
                                      Tasdiqlash <CheckCircle className="w-3.5 h-3.5 ml-1" />
                                    </button>
@@ -686,24 +686,24 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                             </div>
                           ) : (
                             <div className="flex flex-col items-start gap-3">
-                              {t.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></span>To'landi</span>}
-                              {t.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2 shadow-[0_0_5px_rgba(244,63,94,0.5)]"></span>To'lanmadi</span>}
+                              {item.status === 'PAID' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></span>To'landi</span>}
+                              {item.status === 'PENDING' && <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20"><span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2 shadow-[0_0_5px_rgba(244,63,94,0.5)]"></span>To'lanmadi</span>}
                               
                               <div className="flex items-center gap-2 relative">
-                                <a href={`/uz/utility/new?agreementId=${t.agreementId}`} title="Kommunal to'lov yozish" className="flex items-center px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-xl transition-all shadow-sm text-xs font-bold whitespace-nowrap">
+                                <a href={`/uz/utility/new?agreementId=${item.agreementId}`} title="Kommunal to'lov yozish" className="flex items-center px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300 rounded-xl transition-all shadow-sm text-xs font-bold whitespace-nowrap">
                                   + Qarz yozish <Zap className="w-3.5 h-3.5 ml-1" />
                                 </a>
-                                {t.paymentType === 'RENT' && (
+                                {item.paymentType === 'RENT' && (
                                    <form action={endAgreement}>
-                                     <input type="hidden" name="agreementId" value={t.agreementId} />
-                                     <ConfirmButton text="Rostdan ham ijara shartnomasini yakunlab arxivlamoqchimisiz? Bu jarayon orqaga qaytarilmaydi!" title="{t('btnEndContract')} (Arxiv)" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
+                                     <input type="hidden" name="agreementId" value={item.agreementId} />
+                                     <ConfirmButton text="Rostdan ham ijara shartnomasini yakunlab arxivlamoqchimisiz? Bu jarayon orqaga qaytarilmaydi!" title={`${t('btnEndContract')} (Arxiv)`} className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
                                        <X className="w-4 h-4" />
                                      </ConfirmButton>
                                    </form>
                                 )}
-                                {t.paymentType !== 'RENT' && t.status === 'PENDING' && (
+                                {item.paymentType !== 'RENT' && item.status === 'PENDING' && (
                                    <form action={deletePayment}>
-                                     <input type="hidden" name="paymentId" value={t.paymentId} />
+                                     <input type="hidden" name="paymentId" value={item.paymentId} />
                                      <ConfirmButton text="Ushbu kiritilgan qarz kvitansiyasini o'chirib tashlamoqchimisiz?" title="Qarzni o'chirish" className="flex items-center px-2 py-2 bg-white text-zinc-500 hover:text-rose-600 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-500 dark:hover:text-rose-400 rounded-xl transition-all text-xs font-bold ring-1 ring-zinc-200 dark:ring-zinc-800 hover:ring-rose-200 dark:hover:ring-rose-500/30">
                                        <Trash2 className="w-4 h-4" />
                                      </ConfirmButton>
