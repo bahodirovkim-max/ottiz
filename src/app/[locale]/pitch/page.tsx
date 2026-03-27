@@ -146,6 +146,103 @@ export default function PitchDeck() {
          </div>
       </section>
 
+      {/* RENTPAY BUSINESS DEEP DIVE SECTION */}
+      <section className="py-24 px-6 bg-zinc-50 dark:bg-[#0a0a0a] border-b border-zinc-200 dark:border-zinc-800">
+        <div className="max-w-6xl mx-auto">
+           <div className="flex flex-col items-center text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs uppercase tracking-widest mb-6 ring-1 ring-amber-200 dark:ring-amber-500/30">
+                Premium Extension
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-black text-zinc-900 dark:text-white mb-6">RentPay <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Business</span></h2>
+              <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-3xl leading-relaxed">
+                Platformamizning ikkinchi biznes modeli. Xuddi **Yandex Arenda** yoki **ZappyRent (Italiya)** kabi uyni 100% boshqaruvga olish, kafolatli to'lov va to'liq servis taqdim etish.
+              </p>
+           </div>
+
+           <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
+              <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 sm:p-12 shadow-2xl border border-zinc-100 dark:border-zinc-800 relative overflow-hidden group">
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full blur-[80px] -z-10 group-hover:bg-amber-400/20 transition-colors"></div>
+                 <h3 className="text-2xl font-black mb-8 flex items-center gap-3"><ShieldCheck className="w-8 h-8 text-amber-500" /> Uy Egasi uchun qulaylik (Landlord)</h3>
+                 <ul className="space-y-6">
+                   <li className="flex gap-4">
+                     <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5"><CheckCircle className="w-4 h-4" /></div>
+                     <div>
+                       <strong className="block text-zinc-900 dark:text-white mb-1">To'lovlar Kafolati (Guaranteed Rent)</strong>
+                       <span className="text-zinc-500 text-sm">Bizning eng kuchli qurolimiz. Agar ijarachi pul to'lamasa yoki uydan chiqmasa ham, RentPay Biznes Sug'urta fondi uy egasiga har oyning qat'iy sanasida o'z yonidan pul tashlab beradi.</span>
+                     </div>
+                   </li>
+                   <li className="flex gap-4">
+                     <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5"><CheckCircle className="w-4 h-4" /></div>
+                     <div>
+                       <strong className="block text-zinc-900 dark:text-white mb-1">Mol-mulk Monitoringi</strong>
+                       <span className="text-zinc-500 text-sm">Biz uyni professional 3D rasmga olamiz, kalitlarni o'zimiz topshiramiz. Har oy yoki chorakda uyning jismoniy holati (sostoyaniyasi) bo'yicha vizual hisobot beramiz.</span>
+                     </div>
+                   </li>
+                   <li className="flex gap-4">
+                     <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5"><CheckCircle className="w-4 h-4" /></div>
+                     <div>
+                       <strong className="block text-zinc-900 dark:text-white mb-1">100% Passiv Daromad</strong>
+                       <span className="text-zinc-500 text-sm">Uy egasi umuman uchrashuvga bormaydi. Telefon qilib asabiylashmaydi. Hammasi elektron smart-kontrakt orqali xuddi bank depoziti yechish kabi passiv kechadi.</span>
+                     </div>
+                   </li>
+                 </ul>
+              </div>
+
+              <div className="space-y-6">
+                 <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-zinc-100 dark:border-zinc-800 shadow-sm flex gap-6 hover:border-amber-500/50 transition-colors">
+                    <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center flex-shrink-0 text-amber-500 border border-amber-100 dark:border-amber-500/20">
+                      <Wrench className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold mb-2">Qo'shimcha Xizmatlar (Cross-Sell)</h4>
+                      <p className="text-zinc-500 text-sm leading-relaxed mb-4">Ijarachilar to'g'ridan-to'g'ri ilova orqali "Klining" (haftalik/oylik uyni tozalash), Santexnik yoki Elektrik chaqira oladi. Bu xizmatlardan olinadigan marginlar bizga sof foyda (upselling) keltirib beradi.</p>
+                      <div className="inline-flex text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-3 py-1 rounded-full">+15% Qo'shimcha Sof Daromad</div>
+                    </div>
+                 </div>
+
+                 <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-zinc-100 dark:border-zinc-800 shadow-sm flex gap-6 hover:border-[#2AABEE]/50 transition-colors">
+                    <div className="w-16 h-16 rounded-2xl bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center flex-shrink-0 text-[#2AABEE] border border-sky-100 dark:border-sky-500/20">
+                      <Key className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold mb-2">Ijarachi uchun Mehmonxona darajasi</h4>
+                      <p className="text-zinc-500 text-sm leading-relaxed mb-4">Trendlar shuni ko'rsatmoqdaki, zamonaviy yoshlar (Gen-Z) o'ziga uy xarid qilishdan ko'ra nufuzli Premium Co-Living uylarda qimmatroq ijara evaziga yashashni afzal ko'rmoqda. Biz ularni ayni janjalsiz, sifatli va "Mehmonxona darajasi"dagi servis bilan qamrab olamiz.</p>
+                      <div className="inline-flex text-xs font-bold text-[#2AABEE] bg-sky-50 dark:bg-sky-500/10 px-3 py-1 rounded-full">Global Co-Living Trend yechimi</div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+
+           <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-[3rem] p-10 sm:p-14 text-white relative overflow-hidden shadow-[0_20px_50px_rgba(245,158,11,0.3)]">
+              <div className="absolute inset-0 bg-black/10 opacity-40"></div>
+              <div className="relative z-10 grid md:grid-cols-2 gap-10 items-center">
+                 <div>
+                    <h3 className="text-3xl sm:text-4xl font-black mb-4">RentPay Business Modeli Moliyasi</h3>
+                    <p className="text-amber-100/80 text-lg mb-6 leading-relaxed">Agentlar, brokelar va maklerlarni to'liq siqib chiqarish orqali yuqori daromadli ekotizim o'rnatamiz.</p>
+                    <div className="flex flex-wrap gap-4">
+                       <span className="px-4 py-2 bg-black/20 backdrop-blur-md rounded-full text-sm font-bold border border-white/10">1 To'lov Tizimi</span>
+                       <span className="px-4 py-2 bg-black/20 backdrop-blur-md rounded-full text-sm font-bold border border-white/10">Makler Komissiyasi 0%</span>
+                    </div>
+                 </div>
+                 <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20">
+                    <div className="flex items-end justify-between mb-4 border-b border-white/10 pb-4">
+                       <span className="text-amber-100 font-medium">Boshqaruv Komissiyasi:</span>
+                       <span className="text-2xl font-black">7% - 15% / Oylik</span>
+                    </div>
+                    <div className="flex items-end justify-between mb-4 border-b border-white/10 pb-4">
+                       <span className="text-amber-100 font-medium">LTV (Mijozning yashash muddati):</span>
+                       <span className="text-xl font-bold">+40% (x1.4 LTV) oshish</span>
+                    </div>
+                    <div className="flex items-end justify-between">
+                       <span className="text-amber-100 font-medium">Sof Oylik Daromad strategiyasi:</span>
+                       <span className="text-xl font-bold text-emerald-300">Ijara bozorining ~15% ini egallash</span>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </section>
+
       {/* 5-Year Roadmap & Projections */}
       <section className="py-24 px-6 max-w-6xl mx-auto">
         <h2 className="text-4xl font-extrabold mb-16 text-center text-zinc-900 dark:text-white">5 yillik <span className="text-emerald-500">Maqsadlar va Strategiya</span></h2>
