@@ -88,7 +88,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 status: p.status,
                 agreementStatus: agreement.status,
                 totalMonths: aTotalMonths,
-                paidMonths: aPaidMonths
+                paidMonths: aPaidMonths,
+                startDate: agreement.startDate || agreement.createdAt
              });
          }
       });
@@ -109,7 +110,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             status: 'AGREEMENT_PENDING',
             agreementStatus: agreement.status,
             totalMonths: aTotalMonths,
-            paidMonths: aPaidMonths
+            paidMonths: aPaidMonths,
+            startDate: agreement.startDate || agreement.createdAt
          });
       }
   });
@@ -629,13 +631,23 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                            <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 mt-1 uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded shadow-sm inline-block">{item.title}</p>
                            <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 font-medium">{t('tableDue')} {item.dueDate}</p>
                            {item.totalMonths && item.agreementStatus !== 'PENDING' && (
-                              <div className="mt-4 w-48 bg-zinc-50 dark:bg-zinc-800/40 p-2 rounded-xl border border-zinc-100 dark:border-zinc-800/60">
-                                 <div className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wider">
+                              <div className="mt-4 space-y-2">
+                                 <div className="flex justify-between text-[9px] font-bold text-zinc-500 mb-1 tracking-wider uppercase">
                                    <span>{item.totalMonths} {t('monthContract')}</span>
-                                   <span className="text-[#2AABEE]">{item.paidMonths} {t('monthsPaid')}</span>
+                                   <span className="text-emerald-500 font-extrabold">{item.paidMonths} {t('monthsPaid')}</span>
                                  </div>
-                                 <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1 overflow-hidden">
-                                   <div className="bg-[#2AABEE] h-1 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.round((item.paidMonths / item.totalMonths) * 100))}%` }}></div>
+                                 <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                                   {Array.from({ length: item.totalMonths }).map((_, i) => {
+                                      const isPaid = i < item.paidMonths;
+                                      const m = new Date(item.startDate || Date.now());
+                                      m.setMonth(m.getMonth() + i);
+                                      const monthName = m.toLocaleString('uz-UZ', { month: 'short' }).substring(0, 3);
+                                      return (
+                                        <div key={i} title={`${i+1}-oy: ${isPaid ? "To'langan" : "Kutilmoqda"}`} className={`flex items-center justify-center w-8 h-8 rounded border border-transparent text-[9px] font-extrabold tracking-wide uppercase transition-all duration-300 ${isPaid ? 'bg-[#00D06C] text-black shadow-[0_4px_10px_rgba(0,208,108,0.2)]' : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-400 dark:text-zinc-500'}`}>
+                                          {monthName}
+                                        </div>
+                                      )
+                                   })}
                                  </div>
                               </div>
                            )}
