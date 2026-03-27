@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar, Legend } from 'recharts';
-import { ArrowLeft, Target, TrendingUp, Globe, Wallet, ChevronRight, Activity, ShieldCheck, Zap, XCircle, Building } from 'lucide-react';
+import { ArrowLeft, Target, TrendingUp, Globe, Wallet, ChevronRight, Activity, ShieldCheck, Zap, XCircle, Building, Key, CheckCircle, Wrench } from 'lucide-react';
 
 const revenueData = [
   { year: '2026', mrr: 15 },
