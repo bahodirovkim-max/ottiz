@@ -41,12 +41,12 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ success: true, message: 'Tizimga muvaffaqiyatli kirdingiz', user, hasProfile });
     
     // Auth sessiyasini yaratish
-    const cookieStore = await cookies();
-    cookieStore.set('auth-token', user.id, {
+    response.cookies.set('auth-token', user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 30
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/'
     });
     
     return response;
